@@ -9,6 +9,66 @@ import {
 
 const AppContext = createContext(null);
 
+// Demo seed data shown when no positions exist yet
+const DEMO_POSITIONS = [
+  {
+    id: 'demo_1',
+    symbol: 'BTC/USDT',
+    name: 'Bitcoin',
+    openPrice: 66850.00,
+    volume: 0.05,
+    leverage: 10,
+    direction: 'long',
+    module: 'crypto',
+    openTime: '5/27/2026, 08:14:32 AM',
+    timestamp: Date.now() - 3600000 * 5,
+  },
+  {
+    id: 'demo_2',
+    symbol: 'ETH/USDT',
+    name: 'Ethereum',
+    openPrice: 3580.00,
+    volume: 0.5,
+    leverage: 5,
+    direction: 'short',
+    module: 'crypto',
+    openTime: '5/27/2026, 10:02:55 AM',
+    timestamp: Date.now() - 3600000 * 3,
+  },
+  {
+    id: 'demo_3',
+    symbol: 'XAU/USD',
+    name: 'Gold',
+    openPrice: 2298.50,
+    volume: 0.1,
+    leverage: 20,
+    direction: 'long',
+    module: 'forex',
+    openTime: '5/27/2026, 11:45:00 AM',
+    timestamp: Date.now() - 3600000 * 2,
+  },
+  {
+    id: 'demo_4',
+    symbol: 'XAUUSD',
+    name: 'Gold',
+    openPrice: 2305.00,
+    volume: 0.02,
+    leverage: 10,
+    direction: 'buy',
+    module: 'simple',
+    openTime: '5/27/2026, 13:20:10 PM',
+    timestamp: Date.now() - 3600000,
+  },
+];
+
+const DEMO_HISTORY = [
+  { id: 'h1', symbol: 'BTC/USDT', name: 'Bitcoin', openPrice: 65200, closePrice: 67100, volume: 0.03, leverage: 10, direction: 'long', module: 'crypto', pnl: 570, openTime: '5/26/2026, 09:00:00 AM', closeTime: '5/26/2026, 14:30:00 PM', status: 'closed', timestamp: Date.now() - 86400000 },
+  { id: 'h2', symbol: 'ETH/USDT', name: 'Ethereum', openPrice: 3620, closePrice: 3490, volume: 0.2, leverage: 5, direction: 'long', module: 'crypto', pnl: -130, openTime: '5/26/2026, 10:15:00 AM', closeTime: '5/26/2026, 16:00:00 PM', status: 'closed', timestamp: Date.now() - 82800000 },
+  { id: 'h3', symbol: 'XAU/USD', name: 'Gold', openPrice: 2285, closePrice: 2312, volume: 0.1, leverage: 20, direction: 'long', module: 'forex', pnl: 270, openTime: '5/25/2026, 08:30:00 AM', closeTime: '5/25/2026, 15:45:00 PM', status: 'closed', timestamp: Date.now() - 172800000 },
+  { id: 'h4', symbol: 'EUR/USD', name: 'Euro/USD', openPrice: 1.0861, closePrice: 1.0834, volume: 1000, leverage: 100, direction: 'short', module: 'forex', pnl: 270, openTime: '5/25/2026, 12:00:00 PM', closeTime: '5/25/2026, 17:30:00 PM', status: 'closed', timestamp: Date.now() - 169200000 },
+  { id: 'h5', symbol: 'XAUUSD', name: 'Gold', openPrice: 2318, closePrice: 2302, volume: 0.05, leverage: 10, direction: 'buy', module: 'simple', pnl: -80, openTime: '5/24/2026, 11:00:00 AM', closeTime: '5/24/2026, 14:00:00 PM', status: 'closed', timestamp: Date.now() - 259200000 },
+];
+
 export function AppProvider({ children }) {
   // Auth
   const [user, setUser] = useState(() => {
@@ -32,13 +92,18 @@ export function AppProvider({ children }) {
   // Open positions (all trading modules)
   const [positions, setPositions] = useState(() => {
     const saved = localStorage.getItem('pt_positions');
-    return saved ? JSON.parse(saved) : [];
+    const parsed = saved ? JSON.parse(saved) : null;
+    // Seed demo positions if nothing saved yet
+    if (!parsed || parsed.length === 0) return DEMO_POSITIONS;
+    return parsed;
   });
 
   // Trade history
   const [tradeHistory, setTradeHistory] = useState(() => {
     const saved = localStorage.getItem('pt_history');
-    return saved ? JSON.parse(saved) : [];
+    const parsed = saved ? JSON.parse(saved) : null;
+    if (!parsed || parsed.length === 0) return DEMO_HISTORY;
+    return parsed;
   });
 
   // Live prices
@@ -118,6 +183,16 @@ export function AppProvider({ children }) {
       openPositions: positionsRef.current.length,
     };
   }, [wallet.usdt]);
+
+  // Liquidation price helper
+  const getLiquidationPrice = useCallback((pos) => {
+    const mmRate = 0.005; // 0.5% maintenance margin
+    const isLong = pos.direction === 'long' || pos.direction === 'buy';
+    if (isLong) {
+      return pos.openPrice * (1 - (1 / pos.leverage) + mmRate);
+    }
+    return pos.openPrice * (1 + (1 / pos.leverage) - mmRate);
+  }, []);
 
   // Open position
   const openPosition = useCallback((positionData) => {
@@ -212,6 +287,7 @@ export function AppProvider({ children }) {
     tradeHistory,
     prices,
     getMetrics,
+    getLiquidationPrice,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

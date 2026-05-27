@@ -143,9 +143,10 @@
   }
 
   .sidebar-item.active {
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(255, 215, 0, 0.1);
     color: #ffd700;
-    border-color: rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.08), inset 0 1px 0 rgba(255, 215, 0, 0.08);
   }
 
   .nav-tab {
@@ -257,4 +258,38 @@
 
 .animate-slide-in {
   animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.2); }
+  50%       { box-shadow: 0 0 24px rgba(255, 215, 0, 0.5); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes priceFlashGreen {
+  0%   { color: #10b981; }
+  50%  { color: #6ee7b7; text-shadow: 0 0 8px rgba(16,185,129,0.6); }
+  100% { color: #10b981; }
+}
+
+@keyframes priceFlashRed {
+  0%   { color: #ef4444; }
+  50%  { color: #fca5a5; text-shadow: 0 0 8px rgba(239,68,68,0.6); }
+  100% { color: #ef4444; }
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-price-up {
+  animation: priceFlashGreen 1.5s ease-in-out infinite;
+}
+
+.animate-price-down {
+  animation: priceFlashRed 1.5s ease-in-out infinite;
 }

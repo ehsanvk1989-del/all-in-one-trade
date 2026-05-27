@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { NotificationProvider } from './context/NotificationContext';
 import LoginPage from './pages/LoginPage';
 import MainSelectionPage from './pages/MainSelectionPage';
 import Dashboard from './pages/Dashboard';
@@ -11,6 +12,8 @@ import OpenPositions from './pages/OpenPositions';
 import TradeHistory from './pages/TradeHistory';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import ToastContainer from './components/common/ToastContainer';
+import AIAssistant from './components/common/AIAssistant';
 
 function AppContent() {
   const { user, currentPage } = useApp();
@@ -63,7 +66,11 @@ function AppContent() {
 function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <NotificationProvider>
+        <AppContent />
+        <ToastContainer />
+        <AIAssistant />
+      </NotificationProvider>
     </AppProvider>
   );
 }
