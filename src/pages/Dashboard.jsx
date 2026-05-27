@@ -123,7 +123,7 @@ export default function Dashboard() {
   // Top movers
   const topMovers = useMemo(() => {
     return [...SIMPLE_TRADE_ASSETS, ...CRYPTO_FUTURES_ASSETS].map(asset => {
-      const price = prices[asset.symbol] || asset.basePrice;
+      const price = prices[asset.symbol] ?? asset.basePrice;
       const change = ((price - asset.basePrice) / asset.basePrice) * 100;
       return { ...asset, price, change };
     }).sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 5);
@@ -292,7 +292,7 @@ export default function Dashboard() {
           <div className="text-white font-semibold mb-4">Market Overview</div>
           <div className="space-y-2">
             {SIMPLE_TRADE_ASSETS.map(asset => {
-              const price = prices[asset.symbol] || asset.basePrice;
+              const price = prices[asset.symbol] ?? asset.basePrice;
               const change = ((price - asset.basePrice) / asset.basePrice) * 100;
               const isUp = change >= 0;
               return (
@@ -355,7 +355,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-2">
               {positions.slice(0, 4).map(pos => {
-                const currentPrice = prices[pos.symbol] || pos.openPrice;
+                const currentPrice = prices[pos.symbol] ?? pos.openPrice;
                 const priceDiff = (pos.direction === 'long' || pos.direction === 'buy')
                   ? currentPrice - pos.openPrice
                   : pos.openPrice - currentPrice;

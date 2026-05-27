@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { TrendingUp, TrendingDown, AlertCircle, Activity } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { FOREX_ASSETS, formatCurrency } from '../utils/mockData';
-import TVChart from '../components/charts/TVChart';
+import TradingViewWidget from '../components/charts/TradingViewWidget';
 
 /* ─── Helpers ────────────────────────────────────────────── */
 function SectionLabel({ children, right }) {
@@ -18,7 +18,7 @@ function SectionLabel({ children, right }) {
 }
 
 /* ─── Market Watch Sidebar ───────────────────────────────── */
-function MarketWatch({ prices, selected, onSelect }) {
+function MarketWatch({ prices, priceStatuses, selected, onSelect }) {
   return (
     <div className="flex-shrink-0 flex flex-col h-full border-r border-white/5 overflow-hidden"
       style={{ width: 162, background: '#0c0e11' }}>
@@ -30,7 +30,8 @@ function MarketWatch({ prices, selected, onSelect }) {
       {/* Asset list */}
       <div className="flex-1 overflow-y-auto">
         {FOREX_ASSETS.map(asset => {
-          const price = prices[asset.symbol] || asset.basePrice;
+          const status = priceStatuses?.[asset.symbol] || 'connecting';
+          const price = prices[asset.symbol] ?? asset.basePrice;
           const change = ((price - asset.basePrice) / asset.basePrice) * 100;
           const isUp = change >= 0;
           const isSel = selected.symbol === asset.symbol;
@@ -50,12 +51,16 @@ function MarketWatch({ prices, selected, onSelect }) {
                     {asset.symbol}
                   </span>
                 </div>
-                <span className={`text-[10px] font-semibold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {isUp ? '+' : ''}{change.toFixed(2)}%
-                </span>
+                {status === 'live'
+                  ? <span className={`text-[10px] font-semibold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>{isUp ? '+' : ''}{change.toFixed(2)}%</span>
+                  : <span className={`text-[10px] font-semibold ${status === 'connecting' ? 'text-yellow-400/60' : 'text-white/25'}`}>{status === 'connecting' ? '···' : 'N/A'}</span>
+                }
               </div>
-              <div className={`font-mono text-xs font-semibold ${isSel ? 'text-white' : 'text-white/55'}`}>
-                {price >= 100 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1 h-1 rounded-full flex-shrink-0 ${status === 'live' ? 'bg-emerald-400' : status === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-white/20'}`} />
+                <div className={`font-mono text-xs font-semibold ${isSel ? 'text-white' : 'text-white/55'}`}>
+                  {status === 'unavailable' ? 'No data' : status === 'connecting' ? '--' : price >= 100 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
+                </div>
               </div>
             </div>
           );
@@ -76,7 +81,7 @@ function MarketWatch({ prices, selected, onSelect }) {
 
 /* ─── Position Row ───────────────────────────────────────── */
 function PositionRow({ pos, prices, onClose }) {
-  const currentPrice = prices[pos.symbol] || pos.openPrice;
+  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
   const diff = pos.direction === 'buy' ? currentPrice - pos.openPrice : pos.openPrice - currentPrice;
   const pnl = diff * pos.volume * pos.leverage;
   const profit = pnl >= 0;
@@ -114,7 +119,7 @@ function PositionRow({ pos, prices, onClose }) {
 
 /* ─── Main page ──────────────────────────────────────────── */
 export default function ForexCommodities() {
-  const { prices, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
+  const { prices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
   const [selectedAsset, setSelectedAsset] = useState(FOREX_ASSETS[0]);
   const [leverage, setLeverage] = useState(10);
   const [direction, setDirection] = useState('buy');
@@ -143,7 +148,8 @@ export default function ForexCommodities() {
     return () => clearInterval(t);
   }, [getMetrics]);
 
-  const currentPrice = prices[selectedAsset.symbol] || selectedAsset.basePrice;
+  const priceStatus = priceStatuses?.[selectedAsset.symbol] || 'connecting';
+  const currentPrice = prices[selectedAsset.symbol] ?? selectedAsset.basePrice;
   const priceChange = ((currentPrice - selectedAsset.basePrice) / selectedAsset.basePrice) * 100;
   const isUp = priceChange >= 0;
   const myPositions = positions.filter(p => p.module === 'forex');
@@ -191,13 +197,26 @@ export default function ForexCommodities() {
 
         {/* Price */}
         <div className="mr-5 py-2.5">
-          <div className={`font-mono text-xl font-bold leading-none ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-            {currentPrice >= 100 ? currentPrice.toFixed(2) : currentPrice >= 1 ? currentPrice.toFixed(4) : currentPrice.toFixed(5)}
-          </div>
-          <div className={`text-xs font-semibold mt-0.5 flex items-center gap-1 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-            {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-            {isUp ? '+' : ''}{priceChange.toFixed(3)}%
-          </div>
+          {priceStatus === 'unavailable' ? (
+            <div className="text-xs text-yellow-400/80 font-semibold flex items-center gap-1.5">
+              <AlertCircle size={12} className="text-yellow-400" />
+              Real market data unavailable
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                {priceStatus === 'live' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />}
+                {priceStatus === 'connecting' && <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />}
+                <div className={`font-mono text-xl font-bold leading-none ${priceStatus === 'connecting' ? 'text-white/40' : isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {priceStatus === 'connecting' ? '---' : currentPrice >= 100 ? currentPrice.toFixed(2) : currentPrice >= 1 ? currentPrice.toFixed(4) : currentPrice.toFixed(5)}
+                </div>
+              </div>
+              <div className={`text-xs font-semibold mt-0.5 flex items-center gap-1 ${priceStatus === 'connecting' ? 'text-white/25' : isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                {priceStatus !== 'connecting' && (isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />)}
+                {priceStatus === 'connecting' ? 'Connecting...' : `${isUp ? '+' : ''}${priceChange.toFixed(3)}%`}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Stats */}
@@ -216,10 +235,12 @@ export default function ForexCommodities() {
           ))}
         </div>
 
-        {/* Live badge */}
+        {/* Status badge */}
         <div className="ml-auto flex items-center gap-1.5 py-2.5">
-          <Activity size={11} className="text-emerald-400" />
-          <span className="text-emerald-400 text-[11px] font-semibold">LIVE</span>
+          <Activity size={11} className={priceStatus === 'live' ? 'text-emerald-400' : priceStatus === 'connecting' ? 'text-yellow-400' : 'text-white/30'} />
+          <span className={`text-[11px] font-semibold ${priceStatus === 'live' ? 'text-emerald-400' : priceStatus === 'connecting' ? 'text-yellow-400' : 'text-white/30'}`}>
+            {priceStatus === 'live' ? 'LIVE' : priceStatus === 'connecting' ? 'CONNECTING' : 'UNAVAILABLE'}
+          </span>
         </div>
       </div>
 
@@ -227,13 +248,13 @@ export default function ForexCommodities() {
       <div className="flex-1 flex overflow-hidden min-h-0">
 
         {/* Market Watch */}
-        <MarketWatch prices={prices} selected={selectedAsset} onSelect={setSelectedAsset} />
+        <MarketWatch prices={prices} priceStatuses={priceStatuses} selected={selectedAsset} onSelect={setSelectedAsset} />
 
         {/* Chart + Positions */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Chart */}
           <div className="flex-1 min-h-0">
-            <TVChart symbol={selectedAsset.symbol} basePrice={currentPrice} />
+            <TradingViewWidget symbol={selectedAsset.symbol} interval="60" />
           </div>
 
           {/* Positions */}

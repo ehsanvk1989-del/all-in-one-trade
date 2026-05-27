@@ -35,7 +35,7 @@ function useLatency() {
 }
 
 export default function Header() {
-  const { currentPage, prices, getMetrics, user, logout } = useApp();
+  const { currentPage, prices, priceStatuses, getMetrics, user, logout } = useApp();
   const [metrics, setMetrics] = useState({ balance: 0, equity: 0, pnl: 0 });
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -81,18 +81,24 @@ export default function Header() {
       <div className="overflow-hidden py-1.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="ticker-move">
           {[...tickerAssets, ...tickerAssets].map((asset, idx) => {
-            const price = prices[asset.symbol] || asset.basePrice;
+            const status = priceStatuses?.[asset.symbol] || 'connecting';
+            const price = prices[asset.symbol] ?? asset.basePrice;
             const change = ((price - asset.basePrice) / asset.basePrice * 100);
             const isUp = change >= 0;
             return (
               <span key={idx} className="inline-flex items-center gap-1.5 px-4 text-xs">
+                {status === 'live' && <span className="w-1 h-1 rounded-full bg-emerald-400 inline-block" />}
+                {status === 'connecting' && <span className="w-1 h-1 rounded-full bg-yellow-400 inline-block animate-pulse" />}
                 <span className="text-white/40 font-medium">{asset.symbol}</span>
-                <span className="font-mono font-medium text-white/80">
-                  {price >= 1000 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
+                <span className={`font-mono font-medium ${status === 'connecting' ? 'text-white/30' : 'text-white/80'}`}>
+                  {status === 'connecting' ? '---' : price >= 1000 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
                 </span>
-                <span className={isUp ? 'text-emerald-400' : 'text-red-400'}>
-                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
-                </span>
+                {status === 'live' && (
+                  <span className={isUp ? 'text-emerald-400' : 'text-red-400'}>
+                    {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
+                  </span>
+                )}
+                {status === 'unavailable' && <span className="text-white/20">N/A</span>}
                 <span className="text-white/10 ml-2">|</span>
               </span>
             );

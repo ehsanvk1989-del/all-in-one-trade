@@ -18,7 +18,7 @@ export default function OpenPositions() {
     : positions.filter(p => p.module === filter);
 
   const totalPnL = positions.reduce((sum, pos) => {
-    const currentPrice = prices[pos.symbol] || pos.openPrice;
+    const currentPrice = prices[pos.symbol] ?? pos.openPrice;
     const priceDiff = (pos.direction === 'long' || pos.direction === 'buy')
       ? currentPrice - pos.openPrice
       : pos.openPrice - currentPrice;
@@ -96,7 +96,7 @@ export default function OpenPositions() {
               </thead>
               <tbody>
                 {filteredPositions.map(pos => {
-                  const currentPrice = prices[pos.symbol] || pos.openPrice;
+                  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
                   const isBuy = pos.direction === 'buy' || pos.direction === 'long';
                   const priceDiff = isBuy ? currentPrice - pos.openPrice : pos.openPrice - currentPrice;
                   const pnl = priceDiff * pos.volume * pos.leverage;

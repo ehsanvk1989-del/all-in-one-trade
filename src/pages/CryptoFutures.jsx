@@ -5,7 +5,7 @@ import {
   CRYPTO_FUTURES_ASSETS,
   generateOrderBook, generateRecentTrades, formatCurrency
 } from '../utils/mockData';
-import TVChart from '../components/charts/TVChart';
+import TradingViewWidget from '../components/charts/TradingViewWidget';
 
 /* ─── Helpers ────────────────────────────────────────────── */
 function SectionLabel({ children, right }) {
@@ -136,7 +136,7 @@ function OrderBookPanel({ currentPrice, isUp }) {
 
 /* ─── Positions row ──────────────────────────────────────── */
 function PositionRow({ pos, prices, onClose }) {
-  const currentPrice = prices[pos.symbol] || pos.openPrice;
+  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
   const diff = pos.direction === 'long'
     ? currentPrice - pos.openPrice
     : pos.openPrice - currentPrice;
@@ -186,7 +186,7 @@ function PositionRow({ pos, prices, onClose }) {
 
 /* ─── Main page ──────────────────────────────────────────── */
 export default function CryptoFutures() {
-  const { prices, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
+  const { prices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
   const [selectedAsset, setSelectedAsset] = useState(CRYPTO_FUTURES_ASSETS[0]);
   const [leverage, setLeverage] = useState(10);
   const [direction, setDirection] = useState('long');
@@ -216,7 +216,8 @@ export default function CryptoFutures() {
     return () => clearInterval(t);
   }, [getMetrics]);
 
-  const currentPrice = prices[selectedAsset.symbol] || selectedAsset.basePrice;
+  const currentPrice = prices[selectedAsset.symbol] ?? selectedAsset.basePrice;
+  const priceStatus = priceStatuses[selectedAsset.symbol] || 'connecting';
   const priceChange = ((currentPrice - selectedAsset.basePrice) / selectedAsset.basePrice) * 100;
   const isUp = priceChange >= 0;
   const myPositions = positions.filter(p => p.module === 'crypto');
@@ -257,7 +258,8 @@ export default function CryptoFutures() {
         {/* Assets */}
         <div className="flex items-center gap-1 py-2 mr-4">
           {CRYPTO_FUTURES_ASSETS.map(asset => {
-            const p = prices[asset.symbol] || asset.basePrice;
+            const p = prices[asset.symbol] ?? asset.basePrice;
+            const st = priceStatuses[asset.symbol] || 'connecting';
             const ch = ((p - asset.basePrice) / asset.basePrice) * 100;
             const sel = selectedAsset.symbol === asset.symbol;
             return (
@@ -269,10 +271,16 @@ export default function CryptoFutures() {
                 }}>
                 <span className="text-base leading-none">{asset.icon}</span>
                 <div className="text-left">
-                  <div className={`text-xs font-bold ${sel ? 'text-white' : 'text-white/60'}`}>{asset.symbol}</div>
-                  <div className={`text-[11px] font-mono ${ch >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {p >= 1000 ? p.toFixed(2) : p.toFixed(4)}
+                  <div className="flex items-center gap-1">
+                    <span className={`text-xs font-bold ${sel ? 'text-white' : 'text-white/60'}`}>{asset.symbol}</span>
+                    {st === 'live' && <span className="w-1 h-1 rounded-full bg-emerald-400 flex-shrink-0" />}
                   </div>
+                  {st === 'unavailable'
+                    ? <div className="text-[10px] text-orange-400">No data</div>
+                    : <div className={`text-[11px] font-mono ${ch >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {st === 'connecting' ? '—' : (p >= 1000 ? p.toFixed(2) : p.toFixed(4))}
+                      </div>
+                  }
                 </div>
               </button>
             );
@@ -285,12 +293,19 @@ export default function CryptoFutures() {
         {/* Current symbol stats */}
         <div className="flex items-center gap-6 flex-shrink-0 py-2">
           <div>
-            <div className={`font-mono text-lg font-bold leading-tight ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-              {currentPrice.toFixed(2)}
-            </div>
-            <div className={`text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-              {isUp ? '+' : ''}{priceChange.toFixed(3)}%
-            </div>
+            {priceStatus === 'unavailable' ? (
+              <div className="text-orange-400 text-xs font-semibold">Real market data unavailable for this symbol</div>
+            ) : (
+              <>
+                <div className={`font-mono text-lg font-bold leading-tight flex items-center gap-1.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {priceStatus === 'connecting' ? '—' : currentPrice.toFixed(2)}
+                  {priceStatus === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ animation: 'pulse 2s infinite' }} />}
+                </div>
+                <div className={`text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {priceStatus === 'connecting' ? 'Connecting...' : `${isUp ? '+' : ''}${priceChange.toFixed(3)}%`}
+                </div>
+              </>
+            )}
           </div>
           {[
             { label: '24h High', value: stats24h.high.toFixed(2), cls: 'text-emerald-400' },
@@ -311,9 +326,9 @@ export default function CryptoFutures() {
 
         {/* Left: Chart + Positions */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* TradingView chart */}
+          {/* TradingView real chart */}
           <div className="flex-1 min-h-0">
-            <TVChart symbol={selectedAsset.symbol} basePrice={currentPrice} />
+            <TradingViewWidget symbol={selectedAsset.symbol} interval="1" />
           </div>
 
           {/* Positions panel */}
