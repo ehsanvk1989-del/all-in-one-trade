@@ -1,12 +1,12 @@
 // Mock price data and utilities for the trading platform
 
 export const SIMPLE_TRADE_ASSETS = [
-  { symbol: 'XAUUSD', name: 'Gold', basePrice: 2310.50, icon: '🥇', spread: 0.30, pip: 0.01 },
-  { symbol: 'OIL', name: 'Crude Oil', basePrice: 78.45, icon: '🛢️', spread: 0.05, pip: 0.01 },
-  { symbol: 'EURUSD', name: 'EUR/USD', basePrice: 1.0842, icon: '💶', spread: 0.0002, pip: 0.0001 },
-  { symbol: 'GBPUSD', name: 'GBP/USD', basePrice: 1.2720, icon: '💷', spread: 0.0003, pip: 0.0001 },
-  { symbol: 'BTC', name: 'Bitcoin', basePrice: 67420.00, icon: '₿', spread: 15, pip: 0.01 },
-  { symbol: 'ETH', name: 'Ethereum', basePrice: 3542.80, icon: 'Ξ', spread: 2, pip: 0.01 },
+  { symbol: 'XAUUSD', name: 'Gold',      basePrice: 4500.00, icon: '🥇', spread: 0.50,  pip: 0.01   },
+  { symbol: 'OIL',    name: 'Crude Oil', basePrice:   93.50, icon: '🛢️', spread: 0.05,  pip: 0.01   },
+  { symbol: 'EURUSD', name: 'EUR/USD',   basePrice:  1.0820, icon: '💶', spread: 0.0002, pip: 0.0001 },
+  { symbol: 'GBPUSD', name: 'GBP/USD',   basePrice:  1.2650, icon: '💷', spread: 0.0003, pip: 0.0001 },
+  { symbol: 'BTC',    name: 'Bitcoin',   basePrice: 75200.00, icon: '₿', spread: 15,    pip: 0.01   },
+  { symbol: 'ETH',    name: 'Ethereum',  basePrice:  3520.00, icon: 'Ξ', spread: 2,     pip: 0.01   },
 ];
 
 export const CRYPTO_FUTURES_ASSETS = [

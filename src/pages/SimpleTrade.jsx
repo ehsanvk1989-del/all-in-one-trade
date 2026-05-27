@@ -20,10 +20,6 @@ if (typeof document !== 'undefined' && !document.getElementById('simple-trade-an
       from { opacity: 0.5; transform: scale(0.97); }
       to   { opacity: 1;   transform: scale(1); }
     }
-    @keyframes tradeFlash {
-      0%   { background: rgba(255,215,0,0.15); }
-      100% { background: transparent; }
-    }
     @keyframes priceBlinkUp {
       0%, 100% { color: #10b981; }
       50%       { color: #6ee7b7; }
@@ -36,7 +32,25 @@ if (typeof document !== 'undefined' && !document.getElementById('simple-trade-an
   document.head.appendChild(s);
 }
 
-function AssetButton({ asset, selected, price, status, onChange }) {
+// Per-symbol volatility per tick (realistic small moves)
+const SIM_VOLATILITY = {
+  XAUUSD: 0.00025,
+  OIL:    0.00035,
+  EURUSD: 0.00010,
+  GBPUSD: 0.00010,
+  BTC:    0.00045,
+  ETH:    0.00055,
+};
+
+function buildSimPrices() {
+  const out = {};
+  SIMPLE_TRADE_ASSETS.forEach(a => { out[a.symbol] = a.basePrice; });
+  return out;
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function AssetButton({ asset, selected, price, onChange }) {
   const change = ((price - asset.basePrice) / asset.basePrice) * 100;
   const isUp = change >= 0;
 
@@ -45,9 +59,7 @@ function AssetButton({ asset, selected, price, status, onChange }) {
       onClick={() => onChange(asset)}
       className="flex flex-col items-center p-3 rounded-xl transition-all duration-200 min-w-0"
       style={{
-        background: selected
-          ? 'rgba(255,215,0,0.1)'
-          : 'rgba(255,255,255,0.03)',
+        background: selected ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.03)',
         border: `1px solid ${selected ? 'rgba(255,215,0,0.35)' : 'rgba(255,255,255,0.06)'}`,
         boxShadow: selected ? '0 0 24px rgba(255,215,0,0.12)' : 'none',
         transform: selected ? 'translateY(-1px)' : 'none',
@@ -55,11 +67,11 @@ function AssetButton({ asset, selected, price, status, onChange }) {
     >
       <span className="text-lg mb-1">{asset.icon}</span>
       <div className="flex items-center gap-1">
-        <div className={`w-1 h-1 rounded-full flex-shrink-0 ${status === 'live' ? 'bg-emerald-400' : status === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-white/20'}`} />
+        <div className="w-1 h-1 rounded-full bg-emerald-400 flex-shrink-0" />
         <div className="text-white/80 text-xs font-semibold">{asset.symbol}</div>
       </div>
-      <div className={`text-xs font-mono mt-0.5 ${status === 'connecting' ? 'text-white/25' : status === 'unavailable' ? 'text-white/20' : isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-        {status === 'connecting' ? '···' : status === 'unavailable' ? 'N/A' : `${isUp ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%`}
+      <div className={`text-xs font-mono mt-0.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+        {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
       </div>
     </button>
   );
@@ -130,8 +142,41 @@ function TradeRow({ pos, prices, onClose }) {
   );
 }
 
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export default function SimpleTrade() {
-  const { prices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
+  const { prices: realPrices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
+
+  // Local simulated prices — always alive, tick every 1-2 seconds
+  const [simPrices, setSimPrices] = useState(buildSimPrices);
+  const tickRef = useRef(null);
+
+  useEffect(() => {
+    function tick() {
+      setSimPrices(prev => {
+        const next = { ...prev };
+        SIMPLE_TRADE_ASSETS.forEach(({ symbol }) => {
+          const vol = SIM_VOLATILITY[symbol] || 0.0003;
+          const change = (Math.random() - 0.5) * 2 * vol;
+          next[symbol] = prev[symbol] * (1 + change);
+        });
+        return next;
+      });
+      tickRef.current = setTimeout(tick, 1000 + Math.random() * 1000);
+    }
+    tickRef.current = setTimeout(tick, 1000 + Math.random() * 1000);
+    return () => clearTimeout(tickRef.current);
+  }, []);
+
+  // Merge: prefer real price when live, otherwise use simulated
+  const effectivePrices = {};
+  SIMPLE_TRADE_ASSETS.forEach(({ symbol }) => {
+    const status = priceStatuses?.[symbol];
+    effectivePrices[symbol] = (status === 'live' && realPrices[symbol] != null)
+      ? realPrices[symbol]
+      : simPrices[symbol];
+  });
+
   const [selectedAsset, setSelectedAsset] = useState(SIMPLE_TRADE_ASSETS[0]);
   const [direction, setDirection] = useState('buy');
   const [volume, setVolume] = useState('0.01');
@@ -147,8 +192,7 @@ export default function SimpleTrade() {
     return () => clearInterval(t);
   }, [getMetrics]);
 
-  const priceStatus = priceStatuses?.[selectedAsset.symbol] || 'connecting';
-  const currentPrice = prices[selectedAsset.symbol] ?? selectedAsset.basePrice;
+  const currentPrice = effectivePrices[selectedAsset.symbol] ?? selectedAsset.basePrice;
   const priceChange = ((currentPrice - selectedAsset.basePrice) / selectedAsset.basePrice) * 100;
   const isUp = priceChange >= 0;
 
@@ -188,9 +232,7 @@ export default function SimpleTrade() {
       <div className="px-5 pt-4 pb-2">
         <div className="flex items-center gap-4 mb-4 p-4 rounded-xl"
           style={{
-            background: tradeFlash
-              ? 'rgba(255,215,0,0.08)'
-              : 'rgba(255,255,255,0.03)',
+            background: tradeFlash ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
             border: `1px solid ${tradeFlash ? 'rgba(255,215,0,0.3)' : 'rgba(255,215,0,0.08)'}`,
             transition: 'all 0.4s ease',
           }}>
@@ -198,35 +240,22 @@ export default function SimpleTrade() {
           <div>
             <div className="flex items-center gap-2">
               <div className="text-white/40 text-xs uppercase tracking-wider">{selectedAsset.name}</div>
-              {priceStatus === 'live' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-              {priceStatus === 'connecting' && <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />}
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            {priceStatus === 'unavailable' ? (
-              <div className="flex items-center gap-2 mt-1">
-                <AlertCircle size={14} className="text-yellow-400" />
-                <span className="text-yellow-400/80 text-sm font-semibold">Real market data unavailable</span>
-              </div>
-            ) : (
-              <div className="flex items-end gap-2 mt-0.5">
-                <span className={`text-3xl font-bold font-mono ${priceStatus === 'connecting' ? 'text-white/30' : 'text-white'}`}
-                  style={{ animation: priceStatus === 'live' ? `${isUp ? 'priceBlinkUp' : 'priceBlinkDown'} 1.5s ease-in-out infinite` : 'none' }}>
-                  {priceStatus === 'connecting' ? '---' : currentPrice >= 1000
-                    ? currentPrice.toFixed(2)
-                    : currentPrice >= 1
-                      ? currentPrice.toFixed(4)
-                      : currentPrice.toFixed(5)}
-                </span>
-                {priceStatus === 'live' && (
-                  <span className={`text-sm font-medium mb-1 flex items-center gap-0.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {isUp ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    {Math.abs(priceChange).toFixed(3)}%
-                  </span>
-                )}
-                {priceStatus === 'connecting' && (
-                  <span className="text-xs text-yellow-400/60 mb-1">Connecting...</span>
-                )}
-              </div>
-            )}
+            <div className="flex items-end gap-2 mt-0.5">
+              <span className="text-3xl font-bold font-mono text-white"
+                style={{ animation: `${isUp ? 'priceBlinkUp' : 'priceBlinkDown'} 1.5s ease-in-out infinite` }}>
+                {currentPrice >= 1000
+                  ? currentPrice.toFixed(2)
+                  : currentPrice >= 1
+                    ? currentPrice.toFixed(4)
+                    : currentPrice.toFixed(5)}
+              </span>
+              <span className={`text-sm font-medium mb-1 flex items-center gap-0.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                {isUp ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {Math.abs(priceChange).toFixed(3)}%
+              </span>
+            </div>
           </div>
           <div className="ml-auto text-right hidden sm:block">
             <div className="text-white/30 text-xs">Free Margin</div>
@@ -241,8 +270,7 @@ export default function SimpleTrade() {
               key={asset.symbol}
               asset={asset}
               selected={selectedAsset.symbol === asset.symbol}
-              price={prices[asset.symbol] ?? asset.basePrice}
-              status={priceStatuses?.[asset.symbol] || 'connecting'}
+              price={effectivePrices[asset.symbol] ?? asset.basePrice}
               onChange={setSelectedAsset}
             />
           ))}
@@ -429,7 +457,7 @@ export default function SimpleTrade() {
             ) : (
               <div className="space-y-2">
                 {myPositions.map(pos => (
-                  <TradeRow key={pos.id} pos={pos} prices={prices} onClose={closePosition} />
+                  <TradeRow key={pos.id} pos={pos} prices={effectivePrices} onClose={closePosition} />
                 ))}
               </div>
             )}
