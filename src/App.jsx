@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { NotificationProvider } from './context/NotificationContext';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import MainSelectionPage from './pages/MainSelectionPage';
 import Dashboard from './pages/Dashboard';
@@ -36,7 +37,6 @@ function AppContent() {
     }
   };
 
-  // Full-screen pages (no sidebar)
   const fullScreenPages = ['crypto', 'forex'];
   const isFullScreen = fullScreenPages.includes(currentPage);
 
@@ -64,6 +64,13 @@ function AppContent() {
 }
 
 function App() {
+  // Show landing if user has never entered the app this session
+  const [showLanding, setShowLanding] = useState(() => !localStorage.getItem('pt_user'));
+
+  if (showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
+
   return (
     <AppProvider>
       <NotificationProvider>
