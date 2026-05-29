@@ -26,23 +26,23 @@ if (typeof document !== 'undefined' && !document.getElementById(STYLES_ID)) {
 
 const TYPE_CONFIG = {
   success: {
-    border: '#10b981',
+    border: '#1ea774',
     glow: 'rgba(16,185,129,0.12)',
     icon: CheckCircle,
-    iconColor: '#10b981',
+    iconColor: '#1ea774',
     badgeBg: 'rgba(16,185,129,0.12)',
-    badgeColor: '#10b981',
-    barColor: '#10b981',
+    badgeColor: '#1ea774',
+    barColor: '#1ea774',
     label: 'Success',
   },
   error: {
-    border: '#ef4444',
+    border: '#d44333',
     glow: 'rgba(239,68,68,0.12)',
     icon: XCircle,
-    iconColor: '#ef4444',
+    iconColor: '#d44333',
     badgeBg: 'rgba(239,68,68,0.12)',
-    badgeColor: '#ef4444',
-    barColor: '#ef4444',
+    badgeColor: '#d44333',
+    barColor: '#d44333',
     label: 'Error',
   },
   warning: {

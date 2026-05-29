@@ -20,8 +20,8 @@ if (typeof document !== 'undefined' && !document.getElementById(STYLES_ID)) {
       to   { opacity: 1; transform: translateY(0);   }
     }
     @keyframes aiPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.4); }
-      50%       { box-shadow: 0 0 0 8px rgba(255,215,0,0);  }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(59,130,246,0);  }
     }
   `;
   document.head.appendChild(style);
@@ -102,14 +102,14 @@ const ALL_INSIGHTS = [
 
 const TYPE_CONFIG = {
   bullish: {
-    color: '#10b981',
+    color: '#1ea774',
     bg: 'rgba(16,185,129,0.1)',
     border: 'rgba(16,185,129,0.2)',
     icon: TrendingUp,
     label: 'Bullish',
   },
   bearish: {
-    color: '#ef4444',
+    color: '#d44333',
     bg: 'rgba(239,68,68,0.1)',
     border: 'rgba(239,68,68,0.2)',
     icon: TrendingDown,
@@ -132,9 +132,9 @@ const TYPE_CONFIG = {
 };
 
 const SENTIMENT_DATA = [
-  { symbol: 'BTC', pct: 68, label: 'Bullish', color: '#10b981' },
+  { symbol: 'BTC', pct: 68, label: 'Bullish', color: '#1ea774' },
   { symbol: 'ETH', pct: 54, label: 'Neutral', color: '#94a3b8' },
-  { symbol: 'Gold', pct: 72, label: 'Bullish', color: '#10b981' },
+  { symbol: 'Gold', pct: 72, label: 'Bullish', color: '#1ea774' },
 ];
 
 // Pick 4 random insights from the full pool
@@ -187,7 +187,7 @@ function InsightCard({ insight, animKey }) {
             style={{
               fontSize: '0.8125rem',
               fontWeight: 700,
-              color: '#ffd700',
+              color: '#3B82F6',
               fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: '0.03em',
             }}
@@ -204,7 +204,7 @@ function InsightCard({ insight, animKey }) {
             style={{
               fontSize: '0.8rem',
               fontWeight: 700,
-              color: insight.confidence >= 70 ? '#10b981' : insight.confidence >= 55 ? '#eab308' : '#94a3b8',
+              color: insight.confidence >= 70 ? '#1ea774' : insight.confidence >= 55 ? '#eab308' : '#94a3b8',
               fontFamily: "'JetBrains Mono', monospace",
             }}
           >
@@ -325,7 +325,7 @@ export default function AIAssistant() {
             height: 500,
             zIndex: 50,
             background: '#0a0a0a',
-            border: '1px solid rgba(255,215,0,0.14)',
+            border: '1px solid rgba(59,130,246,0.14)',
             borderRadius: 16,
             boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.05)',
             display: 'flex',
@@ -350,11 +350,11 @@ export default function AIAssistant() {
                     width: 32,
                     height: 32,
                     borderRadius: 9,
-                    background: 'linear-gradient(135deg, #b8860b, #ffd700 50%, #b8860b)',
+                    background: 'linear-gradient(135deg, #6D28D9, #3B82F6 50%, #6D28D9)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 0 14px rgba(255,215,0,0.25)',
+                    boxShadow: '0 0 14px rgba(59,130,246,0.25)',
                   }}
                 >
                   <Sparkles size={15} color="#000" strokeWidth={2.2} />
@@ -365,7 +365,7 @@ export default function AIAssistant() {
                       style={{
                         fontSize: '0.9375rem',
                         fontWeight: 700,
-                        background: 'linear-gradient(135deg, #ffd700, #ffaa00)',
+                        background: 'linear-gradient(135deg, #3B82F6, #7C3AED)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
@@ -381,11 +381,11 @@ export default function AIAssistant() {
                           width: 6,
                           height: 6,
                           borderRadius: '50%',
-                          background: '#10b981',
+                          background: '#1ea774',
                           animation: 'aiBlink 1.4s ease-in-out infinite',
                         }}
                       />
-                      <span style={{ fontSize: '0.625rem', color: '#10b981', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: '0.625rem', color: '#1ea774', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                         Live Analysis
                       </span>
                     </div>
@@ -475,7 +475,7 @@ export default function AIAssistant() {
                 <span
                   style={{
                     fontSize: '0.625rem',
-                    color: 'rgba(255,215,0,0.6)',
+                    color: 'rgba(59,130,246,0.6)',
                     fontWeight: 600,
                     letterSpacing: '0.04em',
                   }}
@@ -505,8 +505,8 @@ export default function AIAssistant() {
           height: 56,
           borderRadius: '50%',
           background: open
-            ? 'linear-gradient(135deg, #b8860b, #ffd700 50%, #b8860b)'
-            : 'linear-gradient(135deg, #b8860b, #ffd700 50%, #b8860b)',
+            ? 'linear-gradient(135deg, #6D28D9, #3B82F6 50%, #6D28D9)'
+            : 'linear-gradient(135deg, #6D28D9, #3B82F6 50%, #6D28D9)',
           backgroundSize: '200% 200%',
           backgroundPosition: open ? 'right center' : 'left center',
           border: 'none',
@@ -517,20 +517,20 @@ export default function AIAssistant() {
           justifyContent: 'center',
           gap: 2,
           boxShadow: open
-            ? '0 0 30px rgba(255,215,0,0.5), 0 8px 24px rgba(0,0,0,0.5)'
-            : '0 0 20px rgba(255,215,0,0.3), 0 6px 20px rgba(0,0,0,0.5)',
+            ? '0 0 30px rgba(59,130,246,0.5), 0 8px 24px rgba(0,0,0,0.5)'
+            : '0 0 20px rgba(59,130,246,0.3), 0 6px 20px rgba(0,0,0,0.5)',
           transition: 'all 0.25s ease',
           animation: !open ? 'aiPulse 2.5s ease-in-out infinite' : 'none',
         }}
         onMouseEnter={e => {
           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-          e.currentTarget.style.boxShadow = '0 0 36px rgba(255,215,0,0.6), 0 10px 28px rgba(0,0,0,0.6)';
+          e.currentTarget.style.boxShadow = '0 0 36px rgba(59,130,246,0.6), 0 10px 28px rgba(0,0,0,0.6)';
         }}
         onMouseLeave={e => {
           e.currentTarget.style.transform = 'none';
           e.currentTarget.style.boxShadow = open
-            ? '0 0 30px rgba(255,215,0,0.5), 0 8px 24px rgba(0,0,0,0.5)'
-            : '0 0 20px rgba(255,215,0,0.3), 0 6px 20px rgba(0,0,0,0.5)';
+            ? '0 0 30px rgba(59,130,246,0.5), 0 8px 24px rgba(0,0,0,0.5)'
+            : '0 0 20px rgba(59,130,246,0.3), 0 6px 20px rgba(0,0,0,0.5)';
         }}
         aria-label="Toggle AI Assistant"
       >

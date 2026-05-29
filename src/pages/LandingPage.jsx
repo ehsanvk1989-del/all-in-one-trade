@@ -15,8 +15,8 @@ if (typeof document !== 'undefined' && !document.getElementById('lp-styles')) {
       --lp-surf:   #0e1018;
       --lp-card:   #13151f;
       --lp-border: rgba(255,255,255,0.07);
-      --lp-gold:   #c9a84c;
-      --lp-goldl:  #e2c168;
+      --lp-brand:   #3B82F6;
+      --lp-brand2:  #7C3AED;
       --lp-text1:  #f0ede8;
       --lp-text2:  rgba(240,237,232,0.58);
       --lp-text3:  rgba(240,237,232,0.30);
@@ -98,11 +98,11 @@ function Logo({ size = 'md' }) {
   const s = size === 'sm' ? { box: 28, txt: 12, name: 12 } : { box: 36, txt: 15, name: 14 };
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <div style={{ width: s.box, height: s.box, borderRadius: 8, background: 'linear-gradient(135deg,#9a7a35,#c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <span style={{ color: '#07080c', fontWeight: 900, fontSize: s.txt }}>P</span>
+      <div style={{ width: s.box, height: s.box, borderRadius: 8, background: 'linear-gradient(135deg,#3B82F6,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}>
+        <span style={{ color: '#fff', fontWeight: 900, fontSize: s.txt }}>P</span>
       </div>
       <div>
-        <div style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 800, fontSize: s.name, letterSpacing: '0.12em' }}>PLUS TRADE</div>
+        <div style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 800, fontSize: s.name, letterSpacing: '0.12em' }}>PLUS TRADE</div>
         <div style={{ color: 'rgba(240,237,232,0.28)', fontSize: 9, letterSpacing: '0.1em' }}>REGULATED BROKER</div>
       </div>
     </div>
@@ -142,15 +142,15 @@ function Navbar({ onEnter, scrolled }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button className="lp-hide-mobile" onClick={onEnter}
-            style={{ background: 'none', border: '1px solid rgba(201,168,76,0.35)', borderRadius: 7, padding: '7px 18px', color: '#c9a84c', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', letterSpacing: '0.02em' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.10)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.6)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.35)'; }}>
+            style={{ background: 'none', border: '1px solid rgba(59,130,246,0.35)', borderRadius: 7, padding: '7px 18px', color: '#3B82F6', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', letterSpacing: '0.02em' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.10)'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.6)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.35)'; }}>
             Sign In
           </button>
           <button onClick={onEnter}
-            style={{ background: 'linear-gradient(135deg,#c9a84c,#e2c168)', border: 'none', borderRadius: 7, padding: '8px 20px', color: '#07080c', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(201,168,76,0.2)' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(201,168,76,0.35)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 12px rgba(201,168,76,0.2)'; }}>
+            style={{ background: 'linear-gradient(135deg,#3B82F6,#7C3AED)', border: 'none', borderRadius: 7, padding: '8px 20px', color: '#07080c', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', boxShadow: '0 2px 12px rgba(59,130,246,0.2)' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(59,130,246,0.35)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 12px rgba(59,130,246,0.2)'; }}>
             Open Account <ArrowRight size={13} />
           </button>
           <button onClick={() => setMOpen(v => !v)} style={{ display: 'none', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, padding: '7px', cursor: 'pointer', color: '#f0ede8' }} className="lp-show-mobile">
@@ -161,7 +161,7 @@ function Navbar({ onEnter, scrolled }) {
       {mOpen && (
         <div style={{ background: '#0c0d13', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 24px 18px' }}>
           {links.map(l => <button key={l.label} onClick={() => go(l.href)} style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: 'rgba(240,237,232,0.7)', fontSize: 15, fontWeight: 500, padding: '10px 0', cursor: 'pointer' }}>{l.label}</button>)}
-          <button onClick={onEnter} style={{ marginTop: 8, width: '100%', padding: '11px', background: 'linear-gradient(135deg,#c9a84c,#e2c168)', border: 'none', borderRadius: 8, color: '#07080c', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Open Account</button>
+          <button onClick={onEnter} style={{ marginTop: 8, width: '100%', padding: '11px', background: 'linear-gradient(135deg,#3B82F6,#7C3AED)', border: 'none', borderRadius: 8, color: '#07080c', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Open Account</button>
         </div>
       )}
     </nav>
@@ -196,9 +196,9 @@ function HeroSection({ onEnter, tickers }) {
   return (
     <section style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', background: 'var(--lp-bg)', display: 'flex', alignItems: 'center', paddingTop: 66 }}>
       {/* Subtle grid */}
-      <div style={{ position: 'absolute', inset: 0, opacity: 0.018, backgroundImage: 'linear-gradient(rgba(201,168,76,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,1) 1px, transparent 1px)', backgroundSize: '64px 64px', animation: 'lpGridMove 30s linear infinite' }} />
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.018, backgroundImage: 'linear-gradient(rgba(59,130,246,1) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,1) 1px, transparent 1px)', backgroundSize: '64px 64px', animation: 'lpGridMove 30s linear infinite' }} />
       {/* Subtle radial light */}
-      <div style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 60%)', top: '50%', left: '40%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 60%)', top: '50%', left: '40%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }} />
       {/* Bottom fade */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '30%', background: 'linear-gradient(to bottom, transparent, var(--lp-bg))', pointerEvents: 'none' }} />
 
@@ -208,14 +208,14 @@ function HeroSection({ onEnter, tickers }) {
           {/* Left: headline */}
           <div>
             {/* Regulated badge */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.22)', borderRadius: 4, padding: '5px 14px', marginBottom: 28, animation: 'lpFadeUp 0.55s ease forwards' }}>
-              <Shield size={11} style={{ color: '#c9a84c' }} />
-              <span style={{ color: '#c9a84c', fontSize: 10, fontWeight: 700, letterSpacing: '0.18em' }}>MULTI-ASSET TRADING PLATFORM</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.22)', borderRadius: 4, padding: '5px 14px', marginBottom: 28, animation: 'lpFadeUp 0.55s ease forwards' }}>
+              <Shield size={11} style={{ color: '#3B82F6' }} />
+              <span style={{ color: '#3B82F6', fontSize: 10, fontWeight: 700, letterSpacing: '0.18em' }}>MULTI-ASSET TRADING PLATFORM</span>
             </div>
 
             <h1 style={{ fontSize: 'clamp(2.4rem,4.2vw,3.6rem)', fontWeight: 800, color: '#f0ede8', lineHeight: 1.1, marginBottom: 22, opacity: 0, animation: 'lpFadeUp 0.6s ease 0.08s forwards', letterSpacing: '-0.01em' }}>
               Trade Every Market<br />
-              <span style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>With One Account</span>
+              <span style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>With One Account</span>
             </h1>
 
             <p style={{ fontSize: 16.5, color: 'rgba(240,237,232,0.52)', lineHeight: 1.72, maxWidth: 480, marginBottom: 38, opacity: 0, animation: 'lpFadeUp 0.6s ease 0.16s forwards' }}>
@@ -224,9 +224,9 @@ function HeroSection({ onEnter, tickers }) {
 
             <div className="lp-hero-ctas" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', opacity: 0, animation: 'lpFadeUp 0.6s ease 0.24s forwards' }}>
               <button onClick={onEnter}
-                style={{ padding: '13px 28px', background: 'linear-gradient(135deg,#c9a84c,#e2c168)', border: 'none', borderRadius: 7, color: '#07080c', fontWeight: 800, fontSize: 14.5, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.22s', boxShadow: '0 4px 18px rgba(201,168,76,0.25)', letterSpacing: '0.01em' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(201,168,76,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 18px rgba(201,168,76,0.25)'; }}>
+                style={{ padding: '13px 28px', background: 'linear-gradient(135deg,#3B82F6,#7C3AED)', border: 'none', borderRadius: 7, color: '#07080c', fontWeight: 800, fontSize: 14.5, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.22s', boxShadow: '0 4px 18px rgba(59,130,246,0.25)', letterSpacing: '0.01em' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(59,130,246,0.4)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 18px rgba(59,130,246,0.25)'; }}>
                 Start Trading Free
               </button>
               <button onClick={() => document.getElementById('platform')?.scrollIntoView({ behavior: 'smooth' })}
@@ -241,7 +241,7 @@ function HeroSection({ onEnter, tickers }) {
             <div style={{ display: 'flex', gap: 24, marginTop: 44, opacity: 0, animation: 'lpFadeUp 0.6s ease 0.36s forwards', flexWrap: 'wrap' }}>
               {[['50+','Global Markets'],['$2.4B+','Daily Volume'],['150K+','Active Traders'],['99.9%','Platform Uptime']].map(([v,l]) => (
                 <div key={l} style={{ borderRight: '1px solid rgba(255,255,255,0.08)', paddingRight: 24, lastChild: { borderRight: 'none' } }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', lineHeight: 1.1 }}>{v}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', lineHeight: 1.1 }}>{v}</div>
                   <div style={{ color: 'rgba(240,237,232,0.32)', fontSize: 11.5, marginTop: 3, letterSpacing: '0.02em' }}>{l}</div>
                 </div>
               ))}
@@ -274,7 +274,7 @@ function HeroWidget({ tickers, btc, gold, eur }) {
         {/* Header */}
         <div style={{ padding: '11px 16px', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Activity size={13} style={{ color: '#c9a84c' }} />
+            <Activity size={13} style={{ color: '#3B82F6' }} />
             <span style={{ color: 'rgba(240,237,232,0.5)', fontSize: 11, fontWeight: 500, letterSpacing: '0.08em' }}>MARKET WATCH · LIVE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -312,7 +312,7 @@ function HeroWidget({ tickers, btc, gold, eur }) {
         {/* Market rows */}
         <div>
           {rows.map((r, i) => (
-            <div key={r.sym} style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: i < rows.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i === 0 ? 'rgba(201,168,76,0.04)' : 'transparent' }}>
+            <div key={r.sym} style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: i < rows.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i === 0 ? 'rgba(59,130,246,0.04)' : 'transparent' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                 <span style={{ fontSize: 14 }}>{r.icon}</span>
                 <div>
@@ -328,16 +328,16 @@ function HeroWidget({ tickers, btc, gold, eur }) {
         </div>
 
         {/* Footer bar */}
-        <div style={{ padding: '9px 16px', background: 'rgba(201,168,76,0.05)', borderTop: '1px solid rgba(201,168,76,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '9px 16px', background: 'rgba(59,130,246,0.05)', borderTop: '1px solid rgba(59,130,246,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: 'rgba(240,237,232,0.35)', fontSize: 10 }}>50+ instruments available</span>
-          <span style={{ color: '#c9a84c', fontSize: 10, fontWeight: 600 }}>View All Markets →</span>
+          <span style={{ color: '#3B82F6', fontSize: 10, fontWeight: 600 }}>View All Markets →</span>
         </div>
       </div>
 
       {/* Secondary floating card */}
       <div style={{ position: 'absolute', bottom: -16, right: -24, background: 'var(--lp-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', boxShadow: '0 8px 32px rgba(0,0,0,0.6)', animation: 'lpFloatAlt 9s ease-in-out infinite', zIndex: 2 }}>
         <div style={{ color: 'rgba(240,237,232,0.3)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Account Equity</div>
-        <div style={{ color: '#e2c168', fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700 }}>$14,322.50</div>
+        <div style={{ color: '#7C3AED', fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700 }}>$14,322.50</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
           <TrendingUp size={10} style={{ color: '#1ea774' }} />
           <span style={{ color: '#1ea774', fontSize: 10, fontWeight: 600 }}>+$1,842.50 today</span>
@@ -359,10 +359,10 @@ function MarketsSection({ tickers }) {
 
   return (
     <section id="markets" style={{ background: '#0a0b10', padding: '100px 0', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.15),transparent)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(59,130,246,0.15),transparent)' }} />
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
         <div ref={hRef} className={`lp-reveal ${hVis ? 'vis' : ''}`} style={{ marginBottom: 56 }}>
-          <div style={{ color: 'var(--lp-gold)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>GLOBAL MARKETS</div>
+          <div style={{ color: 'var(--lp-brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>GLOBAL MARKETS</div>
           <div className="lp-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'flex-end' }}>
             <h2 style={{ fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#f0ede8', lineHeight: 1.15, margin: 0, letterSpacing: '-0.01em' }}>
               All Your Markets,<br />One Platform
@@ -424,17 +424,17 @@ function MarketCatCard({ inst, idx }) {
   return (
     <div ref={ref} className={`lp-reveal lp-d${idx} ${vis ? 'vis' : ''}`}
       style={{ background: 'var(--lp-card)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '20px', transition: 'all 0.25s ease', cursor: 'default' }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; e.currentTarget.style.background = 'rgba(201,168,76,0.04)'; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.2)'; e.currentTarget.style.background = 'rgba(59,130,246,0.04)'; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = 'var(--lp-card)'; }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontSize: 20 }}>{inst.icon}</span>
         <span style={{ background: 'var(--lp-surf)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, padding: '2px 8px', color: 'rgba(240,237,232,0.38)', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em' }}>{inst.source}</span>
       </div>
       <div style={{ color: '#f0ede8', fontWeight: 700, fontSize: 14.5, marginBottom: 3 }}>{inst.cat}</div>
-      <div style={{ color: '#c9a84c', fontSize: 10, fontWeight: 600, marginBottom: 12 }}>{inst.count}</div>
+      <div style={{ color: '#3B82F6', fontSize: 10, fontWeight: 600, marginBottom: 12 }}>{inst.count}</div>
       {inst.items.map(item => (
         <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-          <div style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(201,168,76,0.5)', flexShrink: 0 }} />
+          <div style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(59,130,246,0.5)', flexShrink: 0 }} />
           <span style={{ color: 'rgba(240,237,232,0.45)', fontSize: 12 }}>{item}</span>
         </div>
       ))}
@@ -449,7 +449,7 @@ function PlatformSection({ onEnter }) {
     {
       id: 'simple', name: 'Simple Trade', tag: 'MOST POPULAR',
       desc: 'A clean, one-click trading experience for major assets. Designed for traders who value speed and simplicity with a premium feel.',
-      icon: Zap, color: '#c9a84c',
+      icon: Zap, color: '#3B82F6',
       features: ['One-click execution', 'Live P&L display', 'Up to 20x leverage', 'Gold, Crypto & Forex'],
     },
     {
@@ -468,13 +468,13 @@ function PlatformSection({ onEnter }) {
 
   return (
     <section id="platform" style={{ background: 'var(--lp-bg)', padding: '100px 0', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.12),transparent)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(59,130,246,0.12),transparent)' }} />
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
         <div ref={hRef} className={`lp-reveal ${hVis ? 'vis' : ''}`} style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ color: 'var(--lp-gold)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>TRADING MODULES</div>
+          <div style={{ color: 'var(--lp-brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>TRADING MODULES</div>
           <h2 style={{ fontSize: 'clamp(1.9rem,3.6vw,2.9rem)', fontWeight: 800, color: '#f0ede8', marginBottom: 16, lineHeight: 1.18, letterSpacing: '-0.01em' }}>
             Three Professional<br />
-            <span style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Trading Environments</span>
+            <span style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Trading Environments</span>
           </h2>
           <p style={{ color: 'rgba(240,237,232,0.45)', fontSize: 15.5, maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
             Each module is purpose-built for its market. One account, three distinct professional experiences.
@@ -536,21 +536,21 @@ function FeaturesSection() {
   const features = [
     { icon: Activity,  color: '#1ea774', title: 'Real-Time Market Data',    desc: 'Binance WebSocket for crypto prices. TwelveData API for forex and commodities. Zero simulated prices in market feeds.' },
     { icon: BarChart2, color: '#5b8dee', title: 'TradingView Integration',  desc: 'Embedded TradingView widgets with institutional-quality candlestick charts accurately reflecting selected instruments.' },
-    { icon: Shield,    color: '#c9a84c', title: 'Demo-Safe Execution',      desc: 'All order execution is fully simulated. No real funds required. Perfect for demos, validation, and investor presentations.' },
+    { icon: Shield,    color: '#3B82F6', title: 'Demo-Safe Execution',      desc: 'All order execution is fully simulated. No real funds required. Perfect for demos, validation, and investor presentations.' },
     { icon: Globe,     color: '#1ea774', title: 'Multi-Asset Coverage',     desc: 'Trade crypto futures, forex majors, gold, crude oil, and simplified markets through one unified account.' },
-    { icon: Lock,      color: '#c9a84c', title: 'Professional Architecture',desc: 'React 18 + Vite + Tailwind. Real-time context state, localStorage persistence, WebSocket price service.' },
+    { icon: Lock,      color: '#3B82F6', title: 'Professional Architecture',desc: 'React 18 + Vite + Tailwind. Real-time context state, localStorage persistence, WebSocket price service.' },
     { icon: Award,     color: '#5b8dee', title: 'Investor-Grade UI',        desc: 'Institutional dark luxury design. Clean surfaces, refined typography, professional spacing — no neon or gaming aesthetics.' },
   ];
 
   return (
     <section id="features" style={{ background: '#0a0b10', padding: '100px 0', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.12),transparent)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(59,130,246,0.12),transparent)' }} />
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
         <div ref={hRef} className={`lp-reveal ${hVis ? 'vis' : ''}`} style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ color: 'var(--lp-gold)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>WHY PLUS TRADE</div>
+          <div style={{ color: 'var(--lp-brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 14 }}>WHY PLUS TRADE</div>
           <h2 style={{ fontSize: 'clamp(1.9rem,3.6vw,2.9rem)', fontWeight: 800, color: '#f0ede8', marginBottom: 16, lineHeight: 1.18, letterSpacing: '-0.01em' }}>
             Built for Performance,<br />
-            <span style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Designed for Professionals</span>
+            <span style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Designed for Professionals</span>
           </h2>
         </div>
 
@@ -589,23 +589,23 @@ function VisionSection({ onEnter }) {
 
   return (
     <section id="vision" style={{ background: 'var(--lp-bg)', padding: '100px 0', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.12),transparent)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(59,130,246,0.12),transparent)' }} />
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
         <div className="lp-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
 
           {/* Left */}
           <div ref={lRef} className={`lp-reveal-l ${lVis ? 'vis' : ''}`}>
-            <div style={{ color: 'var(--lp-gold)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 16 }}>INVESTOR VISION</div>
+            <div style={{ color: 'var(--lp-brand)', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 16 }}>INVESTOR VISION</div>
             <h2 style={{ fontSize: 'clamp(1.9rem,3.5vw,2.8rem)', fontWeight: 800, color: '#f0ede8', lineHeight: 1.15, marginBottom: 20, letterSpacing: '-0.01em' }}>
               A Funded Multi-Asset<br />
-              <span style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Trading Platform</span>
+              <span style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Trading Platform</span>
             </h2>
             <p style={{ color: 'rgba(240,237,232,0.50)', fontSize: 15.5, lineHeight: 1.72, marginBottom: 32 }}>
               Plus Trade is designed to compete visually and functionally with regulated global brokers. A unified premium product concept built for demo validation, investor confidence, and future backend integration.
             </p>
 
             {[
-              { icon: Layers, c: '#c9a84c', t: 'Unified Multi-Market', d: 'One platform covering crypto, forex, commodities, and simplified trading — each with distinct professional UX.' },
+              { icon: Layers, c: '#3B82F6', t: 'Unified Multi-Market', d: 'One platform covering crypto, forex, commodities, and simplified trading — each with distinct professional UX.' },
               { icon: Users,  c: '#1ea774', t: 'Scalable Architecture', d: 'React 18 + real-time data layer. Ready for backend integration: KYC, execution, custody, risk management.' },
               { icon: Globe,  c: '#5b8dee', t: 'Multi-Segment Market', d: 'Serves retail traders, institutions, and premium gaming-adjacent users through purpose-designed experiences.' },
             ].map(({ icon: Icon, c, t, d }) => (
@@ -632,7 +632,7 @@ function VisionSection({ onEnter }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
                 {[['50+','Global Instruments'],['$0','Real Funds at Risk'],['3','Trading Modules'],['100%','Demo Ready']].map(([v,l],i) => (
                   <div key={l} style={{ padding: '18px 20px', borderRight: i % 2 === 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 24, fontWeight: 800, background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', lineHeight: 1 }}>{v}</div>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 24, fontWeight: 800, background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', lineHeight: 1 }}>{v}</div>
                     <div style={{ color: 'rgba(240,237,232,0.35)', fontSize: 11.5, marginTop: 5 }}>{l}</div>
                   </div>
                 ))}
@@ -659,8 +659,8 @@ function CTASection({ onEnter }) {
   const [ref, vis] = useReveal();
   return (
     <section id="cta" style={{ background: '#0a0b10', padding: '100px 0', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(201,168,76,0.18),transparent)' }} />
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 55%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,rgba(59,130,246,0.18),transparent)' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.04) 0%, transparent 55%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 40px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <div ref={ref} className={`lp-reveal ${vis ? 'vis' : ''}`}>
@@ -671,7 +671,7 @@ function CTASection({ onEnter }) {
 
           <h2 style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', fontWeight: 800, color: '#f0ede8', lineHeight: 1.1, marginBottom: 20, letterSpacing: '-0.01em' }}>
             Ready to Enter<br />
-            <span style={{ background: 'linear-gradient(135deg,#e2c168,#c9a84c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Plus Trade?</span>
+            <span style={{ background: 'linear-gradient(135deg,#7C3AED,#3B82F6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Plus Trade?</span>
           </h2>
 
           <p style={{ fontSize: 16, color: 'rgba(240,237,232,0.48)', lineHeight: 1.72, marginBottom: 38 }}>
@@ -680,9 +680,9 @@ function CTASection({ onEnter }) {
 
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={onEnter}
-              style={{ padding: '14px 32px', background: 'linear-gradient(135deg,#c9a84c,#e2c168)', border: 'none', borderRadius: 8, color: '#07080c', fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 20px rgba(201,168,76,0.28)', transition: 'all 0.22s', letterSpacing: '0.01em' }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(201,168,76,0.45)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 20px rgba(201,168,76,0.28)'; }}>
+              style={{ padding: '14px 32px', background: 'linear-gradient(135deg,#3B82F6,#7C3AED)', border: 'none', borderRadius: 8, color: '#07080c', fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 20px rgba(59,130,246,0.28)', transition: 'all 0.22s', letterSpacing: '0.01em' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(59,130,246,0.45)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 4px 20px rgba(59,130,246,0.28)'; }}>
               Enter Plus Trade <ArrowRight size={15} />
             </button>
             <button onClick={onEnter}
@@ -712,9 +712,9 @@ function Footer({ onEnter }) {
           © 2026 Plus Trade · Demo Platform · Not financial advice · No real funds
         </div>
         <button onClick={onEnter}
-          style={{ background: 'none', border: '1px solid rgba(201,168,76,0.22)', borderRadius: 6, padding: '7px 16px', color: 'rgba(201,168,76,0.65)', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.18s', letterSpacing: '0.02em' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; e.currentTarget.style.color = '#c9a84c'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,168,76,0.22)'; e.currentTarget.style.color = 'rgba(201,168,76,0.65)'; }}>
+          style={{ background: 'none', border: '1px solid rgba(59,130,246,0.22)', borderRadius: 6, padding: '7px 16px', color: 'rgba(59,130,246,0.65)', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.18s', letterSpacing: '0.02em' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)'; e.currentTarget.style.color = '#3B82F6'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.22)'; e.currentTarget.style.color = 'rgba(59,130,246,0.65)'; }}>
           Launch Platform <ArrowRight size={12} />
         </button>
       </div>

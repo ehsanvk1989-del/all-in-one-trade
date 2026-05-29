@@ -32,13 +32,13 @@ export default function TVChart({ symbol, basePrice }) {
       crosshair: {
         mode: 1,
         vertLine: {
-          color: 'rgba(255,215,0,0.3)',
+          color: 'rgba(59,130,246,0.3)',
           labelBackgroundColor: '#1e2025',
           width: 1,
           style: 3,
         },
         horzLine: {
-          color: 'rgba(255,215,0,0.3)',
+          color: 'rgba(59,130,246,0.3)',
           labelBackgroundColor: '#1e2025',
           width: 1,
           style: 3,
@@ -61,10 +61,10 @@ export default function TVChart({ symbol, basePrice }) {
 
     // Candlestick series
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#10b981',
-      downColor: '#ef4444',
-      borderUpColor: '#10b981',
-      borderDownColor: '#ef4444',
+      upColor: '#1ea774',
+      downColor: '#d44333',
+      borderUpColor: '#1ea774',
+      borderDownColor: '#d44333',
       wickUpColor: 'rgba(16,185,129,0.7)',
       wickDownColor: 'rgba(239,68,68,0.7)',
     });
@@ -172,7 +172,7 @@ export default function TVChart({ symbol, basePrice }) {
       {/* Subtle watermark */}
       <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none select-none">
         <div className="w-5 h-5 rounded flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg,#b8860b,#ffd700)' }}>
+          style={{ background: 'linear-gradient(135deg,#6D28D9,#3B82F6)' }}>
           <span className="text-black font-black text-xs">P</span>
         </div>
         <span className="text-white/15 text-xs font-semibold tracking-wider">PLUS TRADE</span>

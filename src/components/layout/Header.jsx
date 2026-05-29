@@ -66,7 +66,7 @@ export default function Header() {
   const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-  const latencyColor = latency < 15 ? '#1ea774' : latency < 25 ? '#c9a84c' : '#d44333';
+  const latencyColor = latency < 15 ? '#1ea774' : latency < 25 ? '#f59e0b' : '#d44333';
 
   return (
     <header
@@ -88,7 +88,7 @@ export default function Header() {
             return (
               <span key={idx} className="inline-flex items-center gap-1.5 px-4 text-xs">
                 {status === 'live' && <span className="w-1 h-1 rounded-full inline-block" style={{ background: 'var(--green)' }} />}
-                {status === 'connecting' && <span className="w-1 h-1 rounded-full inline-block animate-pulse" style={{ background: 'var(--gold)' }} />}
+                {status === 'connecting' && <span className="w-1 h-1 rounded-full inline-block animate-pulse" style={{ background: 'var(--brand)' }} />}
                 <span className="font-medium" style={{ color: 'var(--text-3)' }}>{asset.symbol}</span>
                 <span className="font-mono font-medium" style={{ color: status === 'connecting' ? 'var(--text-4)' : 'var(--text-2)' }}>
                   {status === 'connecting' ? '---' : price >= 1000 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
@@ -179,7 +179,7 @@ export default function Header() {
           >
             <Bell size={15} />
             <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-              style={{ background: 'var(--gold)' }} />
+              style={{ background: 'var(--brand)' }} />
           </button>
 
           {/* Profile */}
@@ -189,12 +189,12 @@ export default function Header() {
                 onClick={() => { setProfileOpen(v => !v); setNotifOpen(false); }}
                 className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg transition-all"
                 style={{
-                  background: profileOpen ? 'var(--gold-bg2)' : 'var(--bg-surface)',
-                  border: `1px solid ${profileOpen ? 'rgba(201,168,76,0.2)' : 'var(--border-0)'}`,
+                  background: profileOpen ? 'var(--brand-bg2)' : 'var(--bg-surface)',
+                  border: `1px solid ${profileOpen ? 'rgba(59,130,246,0.2)' : 'var(--border-0)'}`,
                 }}
               >
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-black text-xs font-black"
-                  style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))' }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-black"
+                  style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-light))' }}>
                   {user.name?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <span className="hidden sm:block text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-2)' }}>

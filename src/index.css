@@ -14,11 +14,18 @@
   --border-0:   rgba(255,255,255,0.05);
   --border-1:   rgba(255,255,255,0.08);
   --border-2:   rgba(255,255,255,0.13);
-  --gold:       #c9a84c;
-  --gold-light: #e2c168;
-  --gold-dark:  #9a7a35;
-  --gold-bg:    rgba(201,168,76,0.10);
-  --gold-bg2:   rgba(201,168,76,0.06);
+  /* Brand: modern blue→purple fintech identity */
+  --blue:        #3B82F6;
+  --blue-deep:   #2563EB;
+  --purple:      #7C3AED;
+  --purple-deep: #6D28D9;
+  --brand:       #3B82F6;
+  --brand-light: #7C3AED;
+  --brand-dark:  #2563EB;
+  --brand-bg:    rgba(59,130,246,0.10);
+  --brand-bg2:   rgba(59,130,246,0.06);
+  --brand-grad:  linear-gradient(135deg, #3B82F6, #7C3AED);
+  --brand-glow:  rgba(99,102,241,0.35);
   --text-1:     #f0ede8;
   --text-2:     rgba(240,237,232,0.58);
   --text-3:     rgba(240,237,232,0.30);
@@ -27,6 +34,8 @@
   --green-bg:   rgba(30,167,116,0.12);
   --red:        #d44333;
   --red-bg:     rgba(212,67,51,0.12);
+  --warn:       #f59e0b;
+  --warn-bg:    rgba(245,158,11,0.12);
 }
 
 @layer base {
@@ -65,20 +74,20 @@
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .card-premium:hover {
-    border-color: rgba(201,168,76,0.18);
+    border-color: rgba(59,130,246,0.18);
     box-shadow: 0 6px 28px rgba(0,0,0,0.5);
   }
 
   /* ── Buttons ──────────────────────────────────────────────────────── */
-  .btn-gold {
-    background: linear-gradient(135deg, #c9a84c, #e2c168);
-    color: #0c0d13;
+  .btn-brand {
+    background: linear-gradient(135deg, #3B82F6, #7C3AED);
+    color: #fff;
     font-weight: 700;
     transition: all 0.2s ease;
   }
-  .btn-gold:hover {
-    background: linear-gradient(135deg, #d4b55a, #ecd07a);
-    box-shadow: 0 4px 18px rgba(201,168,76,0.28);
+  .btn-brand:hover {
+    background: linear-gradient(135deg, #4f8ff7, #8b5cf6);
+    box-shadow: 0 4px 20px rgba(99,102,241,0.4);
     transform: translateY(-1px);
   }
 
@@ -105,8 +114,8 @@
   }
 
   /* ── Typography ───────────────────────────────────────────────────── */
-  .text-gold {
-    background: linear-gradient(135deg, #e2c168, #c9a84c);
+  .text-brand {
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -125,8 +134,8 @@
     font-size: 0.875rem;
   }
   .input-dark:focus {
-    border-color: rgba(201,168,76,0.45);
-    box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
+    border-color: rgba(59,130,246,0.45);
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.08);
   }
   .input-dark::placeholder { color: var(--text-4); }
 
@@ -148,9 +157,9 @@
     color: var(--text-1);
   }
   .sidebar-item.active {
-    background: var(--gold-bg);
-    color: var(--gold-light);
-    border-color: rgba(201,168,76,0.18);
+    background: var(--brand-bg);
+    color: var(--brand-light);
+    border-color: rgba(59,130,246,0.18);
   }
 
   /* ── Nav tabs ─────────────────────────────────────────────────────── */
@@ -166,7 +175,7 @@
     letter-spacing: 0.01em;
   }
   .nav-tab:hover { color: var(--text-1); }
-  .nav-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+  .nav-tab.active { color: var(--brand-light); border-bottom-color: var(--brand); }
 
   /* ── Stat card ────────────────────────────────────────────────────── */
   .stat-card {
@@ -196,12 +205,12 @@
     font-size: 0.72rem; font-weight: 600;
     background: var(--red-bg); color: var(--red);
   }
-  .badge-gold {
+  .badge-brand {
     display: inline-flex; align-items: center;
     padding: 0.15rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.72rem; font-weight: 600;
-    background: var(--gold-bg); color: var(--gold-light);
+    background: var(--brand-bg); color: var(--brand-light);
   }
 
   /* ── Ticker ───────────────────────────────────────────────────────── */
@@ -213,8 +222,8 @@
 }
 
 @layer utilities {
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #e2c168, #c9a84c);
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #7C3AED, #3B82F6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -244,8 +253,8 @@
 @keyframes priceUp   { 0%,100%{color:#1ea774;} 50%{color:#42c98e;} }
 @keyframes priceDown { 0%,100%{color:#d44333;} 50%{color:#e06b5e;} }
 @keyframes glowPulse {
-  0%,100%{box-shadow:0 0 0 1px rgba(201,168,76,0.1);}
-  50%    {box-shadow:0 0 0 1px rgba(201,168,76,0.25);}
+  0%,100%{box-shadow:0 0 0 1px rgba(59,130,246,0.1);}
+  50%    {box-shadow:0 0 0 1px rgba(59,130,246,0.25);}
 }
 @keyframes pulseDot {
   0%,100%{opacity:1;transform:scale(1);}

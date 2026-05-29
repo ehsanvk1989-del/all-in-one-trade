@@ -34,19 +34,19 @@ export default function Sidebar() {
         {sidebarOpen && (
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))' }}>
-              <span className="text-black font-black text-sm">P</span>
+              style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-light))' }}>
+              <span className="text-white font-black text-sm">P</span>
             </div>
             <div>
-              <div className="text-gold font-bold text-sm tracking-widest">PLUS TRADE</div>
+              <div className="text-brand font-bold text-sm tracking-widest">PLUS TRADE</div>
               <div className="text-xs" style={{ color: 'var(--text-4)' }}>Premium Platform</div>
             </div>
           </div>
         )}
         {!sidebarOpen && (
           <div className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto"
-            style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))' }}>
-            <span className="text-black font-black text-sm">P</span>
+            style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-light))' }}>
+            <span className="text-white font-black text-sm">P</span>
           </div>
         )}
         {sidebarOpen && (
@@ -90,7 +90,7 @@ export default function Sidebar() {
               onClick={() => setCurrentPage(item.id)}
               title={!sidebarOpen ? item.label : undefined}
             >
-              <Icon size={16} style={{ color: isActive ? 'var(--gold-light)' : 'var(--text-3)' }} />
+              <Icon size={16} style={{ color: isActive ? 'var(--brand-light)' : 'var(--text-3)' }} />
               {sidebarOpen && (
                 <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
               )}

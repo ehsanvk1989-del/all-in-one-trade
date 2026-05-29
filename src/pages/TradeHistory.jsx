@@ -9,7 +9,7 @@ export default function TradeHistory() {
   const [sortBy, setSortBy] = useState('time');
 
   const MODULE_LABELS = { simple: 'Simple Trade', crypto: 'Crypto Futures', forex: 'Forex & Commodities' };
-  const MODULE_COLORS = { simple: '#c9a84c', crypto: '#c9a84c', forex: '#1ea774' };
+  const MODULE_COLORS = { simple: '#3B82F6', crypto: '#3B82F6', forex: '#1ea774' };
 
   const filtered = filter === 'all' ? tradeHistory : tradeHistory.filter(t => t.module === filter);
   const totalPnL = filtered.reduce((sum, t) => sum + (t.pnl || 0), 0);
@@ -52,9 +52,9 @@ export default function TradeHistory() {
               onClick={() => setFilter(f)}
               className="px-3 py-1 rounded-lg text-xs font-medium transition-all capitalize"
               style={{
-                background: filter === f ? 'rgba(201,168,76,0.10)' : 'rgba(255,255,255,0.04)',
-                color: filter === f ? '#c9a84c' : 'rgba(255,255,255,0.5)',
-                border: `1px solid ${filter === f ? 'rgba(201,168,76,0.25)' : 'rgba(255,255,255,0.06)'}`,
+                background: filter === f ? 'rgba(59,130,246,0.10)' : 'rgba(255,255,255,0.04)',
+                color: filter === f ? '#3B82F6' : 'rgba(255,255,255,0.5)',
+                border: `1px solid ${filter === f ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.06)'}`,
               }}
             >
               {f === 'all' ? 'All' : f === 'simple' ? 'Simple' : f === 'crypto' ? 'Crypto' : 'Forex'}
@@ -65,9 +65,9 @@ export default function TradeHistory() {
         <button
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all"
           style={{
-            background: 'var(--gold-bg2)',
-            color: 'var(--gold)',
-            border: '1px solid rgba(201,168,76,0.15)',
+            background: 'var(--brand-bg2)',
+            color: 'var(--brand)',
+            border: '1px solid rgba(59,130,246,0.15)',
           }}
         >
           <Download size={12} /> Export CSV
@@ -122,7 +122,7 @@ export default function TradeHistory() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="badge-gold">{trade.leverage}x</span>
+                        <span className="badge-brand">{trade.leverage}x</span>
                       </td>
                       <td className="px-4 py-3 text-white/60 font-mono text-sm">{trade.volume}</td>
                       <td className="px-4 py-3 text-white/60 font-mono text-sm">

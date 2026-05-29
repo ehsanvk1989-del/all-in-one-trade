@@ -26,7 +26,7 @@ export default function OpenPositions() {
   }, 0);
 
   const MODULE_LABELS = { simple: 'Simple Trade', crypto: 'Crypto Futures', forex: 'Forex & Commodities' };
-  const MODULE_COLORS = { simple: '#c9a84c', crypto: '#c9a84c', forex: '#1ea774' };
+  const MODULE_COLORS = { simple: '#3B82F6', crypto: '#3B82F6', forex: '#1ea774' };
 
   return (
     <div className="flex-1 overflow-y-auto p-5 animate-fade-in">
@@ -62,9 +62,9 @@ export default function OpenPositions() {
             onClick={() => setFilter(f)}
             className="px-3 py-1 rounded-lg text-xs font-medium transition-all capitalize"
             style={{
-              background: filter === f ? 'rgba(201,168,76,0.10)' : 'rgba(255,255,255,0.04)',
-              color: filter === f ? '#c9a84c' : 'rgba(255,255,255,0.5)',
-              border: `1px solid ${filter === f ? 'rgba(201,168,76,0.25)' : 'rgba(255,255,255,0.06)'}`,
+              background: filter === f ? 'rgba(59,130,246,0.10)' : 'rgba(255,255,255,0.04)',
+              color: filter === f ? '#3B82F6' : 'rgba(255,255,255,0.5)',
+              border: `1px solid ${filter === f ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.06)'}`,
             }}>
             {f === 'all' ? 'All' : MODULE_LABELS[f]}
           </button>
@@ -130,7 +130,7 @@ export default function OpenPositions() {
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className="badge-gold">{pos.leverage}x</span>
+                        <span className="badge-brand">{pos.leverage}x</span>
                       </td>
                       <td className="px-3 py-3 text-white/60 font-mono text-sm">{pos.volume}</td>
                       <td className="px-3 py-3 text-white/60 font-mono text-sm">

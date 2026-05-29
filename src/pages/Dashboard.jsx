@@ -50,7 +50,7 @@ function MetricCard({ label, value, sub, color, icon: Icon, prefix = '', accent 
 
 function FearGreedGauge({ value = 63 }) {
   const label = value >= 75 ? 'Extreme Greed' : value >= 55 ? 'Greed' : value >= 45 ? 'Neutral' : value >= 25 ? 'Fear' : 'Extreme Fear';
-  const color = value >= 75 ? '#1ea774' : value >= 55 ? '#1ea774' : value >= 45 ? '#c9a84c' : value >= 25 ? '#c9a84c' : '#d44333';
+  const color = value >= 75 ? '#1ea774' : value >= 55 ? '#1ea774' : value >= 45 ? '#f59e0b' : value >= 25 ? '#f59e0b' : '#d44333';
   const angle = (value / 100) * 180 - 90;
 
   return (
@@ -65,7 +65,7 @@ function FearGreedGauge({ value = 63 }) {
           <defs>
             <linearGradient id="fgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#d44333" />
-              <stop offset="50%" stopColor="#c9a84c" />
+              <stop offset="50%" stopColor="#f59e0b" />
               <stop offset="100%" stopColor="#1ea774" />
             </linearGradient>
           </defs>
@@ -118,7 +118,7 @@ export default function Dashboard() {
   const totalRealizedPnl = tradeHistory.reduce((s, t) => s + (t.pnl || 0), 0);
 
   const riskLevel = metrics.marginLevel > 200 ? 'Low' : metrics.marginLevel > 100 ? 'Medium' : 'High';
-  const riskColor = riskLevel === 'Low' ? '#1ea774' : riskLevel === 'Medium' ? '#c9a84c' : '#d44333';
+  const riskColor = riskLevel === 'Low' ? '#1ea774' : riskLevel === 'Medium' ? '#f59e0b' : '#d44333';
 
   // Top movers
   const topMovers = useMemo(() => {
@@ -142,8 +142,8 @@ export default function Dashboard() {
         style={{ background: 'var(--bg-card)', border: '1px solid var(--border-0)' }}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))' }}>
-            <Shield size={16} className="text-black" />
+            style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-light))' }}>
+            <Shield size={16} className="text-white" />
           </div>
           <div>
             <div className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Account Status</div>
@@ -154,7 +154,7 @@ export default function Dashboard() {
           {[
             { label: 'Status', value: 'Active', color: '#1ea774' },
             { label: 'Risk', value: riskLevel, color: riskColor },
-            { label: 'Account', value: 'Premium', color: '#c9a84c' },
+            { label: 'Account', value: 'Premium', color: '#3B82F6' },
             { label: 'KYC', value: 'Verified ✓', color: '#1ea774' },
           ].map(item => (
             <div key={item.label} className="text-center">
@@ -167,13 +167,13 @@ export default function Dashboard() {
 
       {/* Metrics grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Total Balance" value={metrics.balance} prefix="$" icon={Wallet} accent="#c9a84c" sub="Available funds" />
+        <MetricCard label="Total Balance" value={metrics.balance} prefix="$" icon={Wallet} accent="#3B82F6" sub="Available funds" />
         <MetricCard label="Equity" value={metrics.equity} prefix="$" icon={TrendingUp}
           color={metrics.equity >= metrics.balance ? 'text-green-500' : 'text-red-500'}
           accent="#1ea774"
           sub={`${metrics.equity >= metrics.balance ? '▲' : '▼'} ${Math.abs(((metrics.equity - metrics.balance) / metrics.balance) * 100).toFixed(2)}%`} />
         <MetricCard label="Used Margin" value={metrics.usedMargin} prefix="$" icon={BarChart3}
-          color="text-gold" accent="#c9a84c" sub="In open positions" />
+          color="text-brand" accent="#3B82F6" sub="In open positions" />
         <MetricCard label="Free Margin" value={metrics.freeMargin} prefix="$" icon={Activity}
           color={metrics.freeMargin > 0 ? 'text-white' : 'text-red-500'}
           sub="Available to trade" />
@@ -189,7 +189,7 @@ export default function Dashboard() {
           color={totalRealizedPnl >= 0 ? 'text-green-500' : 'text-red-500'}
           sub="All time" />
         <MetricCard label="Open Positions" value={metrics.openPositions}
-          icon={Activity} accent="#c9a84c" sub="Active trades" />
+          icon={Activity} accent="#3B82F6" sub="Active trades" />
         <MetricCard label="Total Trades" value={tradeHistory.length}
           icon={BarChart3} sub="All time" />
       </div>
@@ -213,14 +213,14 @@ export default function Dashboard() {
             <AreaChart data={equityHistory} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <defs>
                 <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c9a84c" stopOpacity={0.18} />
-                  <stop offset="100%" stopColor="#c9a84c" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <Area type="monotone" dataKey="v" stroke="#c9a84c" strokeWidth={1.5}
+              <Area type="monotone" dataKey="v" stroke="#3B82F6" strokeWidth={1.5}
                 fill="url(#equityGrad)" dot={false} />
               <Tooltip
-                contentStyle={{ background: '#181b26', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 8, fontSize: 11 }}
+                contentStyle={{ background: '#181b26', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, fontSize: 11 }}
                 labelStyle={{ display: 'none' }}
                 formatter={v => [`$${formatCurrency(v)}`, 'Equity']}
               />
@@ -350,7 +350,7 @@ export default function Dashboard() {
         <div className="card-premium rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Open Positions</div>
-            <span className="badge-gold">{positions.length}</span>
+            <span className="badge-brand">{positions.length}</span>
           </div>
           {positions.length === 0 ? (
             <div className="text-sm text-center py-6" style={{ color: 'var(--text-4)' }}>No open positions</div>
@@ -382,7 +382,7 @@ export default function Dashboard() {
               {positions.length > 4 && (
                 <button onClick={() => setCurrentPage('positions')}
                   className="text-xs w-full text-center pt-1 hover:underline"
-                  style={{ color: 'var(--gold)' }}>
+                  style={{ color: 'var(--brand)' }}>
                   View all {positions.length} →
                 </button>
               )}
@@ -394,7 +394,7 @@ export default function Dashboard() {
         <div className="card-premium rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Recent Trades</div>
-            <span className="badge-gold">{tradeHistory.length}</span>
+            <span className="badge-brand">{tradeHistory.length}</span>
           </div>
           {tradeHistory.length === 0 ? (
             <div className="text-sm text-center py-6" style={{ color: 'var(--text-4)' }}>No closed trades</div>
@@ -417,7 +417,7 @@ export default function Dashboard() {
               {tradeHistory.length > 4 && (
                 <button onClick={() => setCurrentPage('history')}
                   className="text-xs w-full text-center pt-1 hover:underline"
-                  style={{ color: 'var(--gold)' }}>
+                  style={{ color: 'var(--brand)' }}>
                   View all {tradeHistory.length} →
                 </button>
               )}
@@ -445,8 +445,8 @@ export default function Dashboard() {
                   onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.borderColor = 'var(--border-0)'; }}
                 >
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'var(--gold-bg2)' }}>
-                    <Icon size={14} style={{ color: 'var(--gold)' }} />
+                    style={{ background: 'var(--brand-bg2)' }}>
+                    <Icon size={14} style={{ color: 'var(--brand)' }} />
                   </div>
                   <span className="text-sm font-medium" style={{ color: 'var(--text-2)' }}>{item.label}</span>
                   <ArrowUpRight size={13} className="ml-auto" style={{ color: 'var(--text-4)' }} />
@@ -458,18 +458,18 @@ export default function Dashboard() {
             <button
               onClick={() => setCurrentPage('wallet')}
               className="w-full flex items-center gap-3 p-3 rounded-lg transition-all"
-              style={{ background: 'var(--gold-bg2)', border: '1px solid rgba(201,168,76,0.15)' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--gold-bg)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--gold-bg2)'}
+              style={{ background: 'var(--brand-bg2)', border: '1px solid rgba(59,130,246,0.15)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--brand-bg)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--brand-bg2)'}
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--gold-bg)' }}>
-                <Wallet size={14} style={{ color: 'var(--gold)' }} />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--brand-bg)' }}>
+                <Wallet size={14} style={{ color: 'var(--brand)' }} />
               </div>
               <div className="text-left">
-                <div className="text-sm font-medium" style={{ color: 'var(--gold-light)' }}>Deposit USDT</div>
+                <div className="text-sm font-medium" style={{ color: 'var(--brand-light)' }}>Deposit USDT</div>
                 <div className="text-xs" style={{ color: 'var(--text-3)' }}>Balance: ${formatCurrency(wallet.usdt)}</div>
               </div>
-              <ArrowUpRight size={13} className="ml-auto" style={{ color: 'var(--gold-dark)' }} />
+              <ArrowUpRight size={13} className="ml-auto" style={{ color: 'var(--brand-dark)' }} />
             </button>
           </div>
         </div>

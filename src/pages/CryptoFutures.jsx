@@ -51,8 +51,8 @@ function OrderBookPanel({ currentPrice, isUp }) {
             onClick={() => setTab(t)}
             className="flex-1 py-2.5 text-xs font-semibold capitalize transition-all"
             style={{
-              color: tab === t ? '#ffd700' : 'rgba(255,255,255,0.3)',
-              borderBottom: `2px solid ${tab === t ? '#ffd700' : 'transparent'}`,
+              color: tab === t ? '#3B82F6' : 'rgba(255,255,255,0.3)',
+              borderBottom: `2px solid ${tab === t ? '#3B82F6' : 'transparent'}`,
               background: 'transparent',
             }}
           >
@@ -155,7 +155,7 @@ function PositionRow({ pos, prices, onClose }) {
         </span>
       </td>
       <td className="py-2.5 px-3">
-        <span className="badge-gold text-[11px]">{pos.leverage}x</span>
+        <span className="badge-brand text-[11px]">{pos.leverage}x</span>
       </td>
       <td className="py-2.5 px-3 font-mono text-white/55">{pos.volume}</td>
       <td className="py-2.5 px-3 font-mono text-white/55">{pos.openPrice.toFixed(2)}</td>
@@ -173,7 +173,7 @@ function PositionRow({ pos, prices, onClose }) {
         <button
           onClick={() => onClose(pos.id)}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
+          style={{ background: 'rgba(239,68,68,0.1)', color: '#d44333', border: '1px solid rgba(239,68,68,0.2)' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.25)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.transform = 'none'; }}
         >
@@ -311,7 +311,7 @@ export default function CryptoFutures() {
             { label: '24h High', value: stats24h.high.toFixed(2), cls: 'text-emerald-400' },
             { label: '24h Low', value: stats24h.low.toFixed(2), cls: 'text-red-400' },
             { label: '24h Volume', value: stats24h.vol, cls: 'text-white/70' },
-            { label: 'Funding', value: '+0.0100%', cls: 'text-yellow-400' },
+            { label: 'Funding', value: '+0.0100%', cls: 'text-blue-400' },
           ].map(s => (
             <div key={s.label} className="hidden md:block">
               <div className="text-[10px] text-white/25 uppercase tracking-wider">{s.label}</div>
@@ -338,7 +338,7 @@ export default function CryptoFutures() {
                 <button key={tab}
                   onClick={() => setBottomTab(tab)}
                   className="nav-tab"
-                  style={{ color: bottomTab === tab ? '#ffd700' : 'rgba(255,255,255,0.35)', borderBottomColor: bottomTab === tab ? '#ffd700' : 'transparent' }}>
+                  style={{ color: bottomTab === tab ? '#3B82F6' : 'rgba(255,255,255,0.35)', borderBottomColor: bottomTab === tab ? '#3B82F6' : 'transparent' }}>
                   {tab === 'positions' ? `Open Positions (${myPositions.length})` : 'History'}
                 </button>
               ))}
@@ -393,8 +393,8 @@ export default function CryptoFutures() {
                   { key: 'short', label: 'Short', icon: '▼', sub: 'Sell', green: false },
                 ].map(btn => {
                   const active = direction === btn.key;
-                  const color = btn.green ? { solid: '#10b981', bg: '#065f46', glow: 'rgba(16,185,129,0.35)', faint: 'rgba(16,185,129,0.06)' }
-                    : { solid: '#ef4444', bg: '#7f1d1d', glow: 'rgba(239,68,68,0.35)', faint: 'rgba(239,68,68,0.06)' };
+                  const color = btn.green ? { solid: '#1ea774', bg: '#065f46', glow: 'rgba(16,185,129,0.35)', faint: 'rgba(16,185,129,0.06)' }
+                    : { solid: '#d44333', bg: '#7f1d1d', glow: 'rgba(239,68,68,0.35)', faint: 'rgba(239,68,68,0.06)' };
                   return (
                     <button key={btn.key} onClick={() => setDirection(btn.key)}
                       className="py-4 rounded-xl font-bold text-sm transition-all duration-200 flex flex-col items-center gap-0.5"
@@ -423,9 +423,9 @@ export default function CryptoFutures() {
                     <button key={t} onClick={() => setOrderType(t)}
                       className="py-2.5 rounded-lg text-xs font-bold capitalize transition-all"
                       style={{
-                        background: orderType === t ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.04)',
-                        color: orderType === t ? '#ffd700' : 'rgba(255,255,255,0.4)',
-                        border: `1px solid ${orderType === t ? 'rgba(255,215,0,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                        background: orderType === t ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)',
+                        color: orderType === t ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                        border: `1px solid ${orderType === t ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.07)'}`,
                       }}>
                       {t.charAt(0).toUpperCase() + t.slice(1)}
                     </button>
@@ -455,10 +455,10 @@ export default function CryptoFutures() {
                     <button key={lev} onClick={() => setLeverage(lev)}
                       className="py-2.5 rounded-lg text-xs font-bold transition-all"
                       style={{
-                        background: leverage === lev ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                        color: leverage === lev ? '#ffd700' : 'rgba(255,255,255,0.4)',
-                        border: `1px solid ${leverage === lev ? 'rgba(255,215,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                        boxShadow: leverage === lev ? '0 0 10px rgba(255,215,0,0.12)' : 'none',
+                        background: leverage === lev ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
+                        color: leverage === lev ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                        border: `1px solid ${leverage === lev ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                        boxShadow: leverage === lev ? '0 0 10px rgba(59,130,246,0.12)' : 'none',
                       }}>
                       {lev}x
                     </button>
@@ -470,7 +470,7 @@ export default function CryptoFutures() {
                   <div className="h-full rounded-full transition-all duration-300"
                     style={{
                       width: `${Math.min(100, (leverage / 100) * 100)}%`,
-                      background: leverage <= 10 ? '#10b981' : leverage <= 20 ? '#ffd700' : leverage <= 50 ? '#f97316' : '#ef4444',
+                      background: leverage <= 10 ? '#1ea774' : leverage <= 20 ? '#f59e0b' : leverage <= 50 ? '#f97316' : '#d44333',
                     }} />
                 </div>
                 <div className="flex justify-between mt-1">
@@ -500,7 +500,7 @@ export default function CryptoFutures() {
                         color: 'rgba(255,255,255,0.45)',
                         border: '1px solid rgba(255,255,255,0.07)',
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,215,0,0.08)'; e.currentTarget.style.color = '#ffd700'; }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.08)'; e.currentTarget.style.color = '#3B82F6'; }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
                     >
                       {pct}%
@@ -573,8 +573,8 @@ export default function CryptoFutures() {
                 className="w-full py-4 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden"
                 style={{
                   background: direction === 'long'
-                    ? 'linear-gradient(135deg, #065f46 0%, #10b981 50%, #065f46 100%)'
-                    : 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 50%, #7f1d1d 100%)',
+                    ? 'linear-gradient(135deg, #065f46 0%, #1ea774 50%, #065f46 100%)'
+                    : 'linear-gradient(135deg, #7f1d1d 0%, #d44333 50%, #7f1d1d 100%)',
                   backgroundSize: '200% 100%',
                   boxShadow: direction === 'long'
                     ? '0 4px 24px rgba(16,185,129,0.35)'
@@ -596,7 +596,7 @@ export default function CryptoFutures() {
                   {[
                     { label: 'Balance', value: `${formatCurrency(metrics.balance)} USDT`, color: 'text-white/65' },
                     { label: 'Equity', value: `${formatCurrency(metrics.equity)} USDT`, color: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                    { label: 'Used Margin', value: `${formatCurrency(metrics.usedMargin)} USDT`, color: 'text-yellow-400/70' },
+                    { label: 'Used Margin', value: `${formatCurrency(metrics.usedMargin)} USDT`, color: 'text-blue-400/70' },
                     { label: 'Free Margin', value: `${formatCurrency(metrics.freeMargin)} USDT`, color: 'text-white/65' },
                     { label: 'Margin Level', value: `${metrics.marginLevel.toFixed(1)}%`, color: metrics.marginLevel > 200 ? 'text-emerald-400' : 'text-yellow-400' },
                   ].map(item => (

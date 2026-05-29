@@ -41,7 +41,7 @@ function MarketWatch({ prices, priceStatuses, selected, onSelect }) {
               className="px-3 py-3 cursor-pointer transition-all"
               style={{
                 background: isSel ? 'rgba(255,255,255,0.05)' : 'transparent',
-                borderLeft: `2px solid ${isSel ? '#4361ee' : 'transparent'}`,
+                borderLeft: `2px solid ${isSel ? '#3B82F6' : 'transparent'}`,
                 borderBottom: '1px solid rgba(255,255,255,0.04)',
               }}>
               <div className="flex items-center justify-between mb-1">
@@ -92,7 +92,7 @@ function PositionRow({ pos, prices, onClose }) {
       <td className={`py-2.5 px-3 font-bold ${pos.direction === 'buy' ? 'text-emerald-400' : 'text-red-400'}`}>
         {pos.direction.toUpperCase()}
       </td>
-      <td className="py-2.5 px-3"><span className="badge-gold text-[11px]">{pos.leverage}x</span></td>
+      <td className="py-2.5 px-3"><span className="badge-brand text-[11px]">{pos.leverage}x</span></td>
       <td className="py-2.5 px-3 font-mono text-white/55">{pos.volume}</td>
       <td className="py-2.5 px-3 font-mono text-white/55">
         {pos.openPrice >= 100 ? pos.openPrice.toFixed(2) : pos.openPrice.toFixed(4)}
@@ -106,7 +106,7 @@ function PositionRow({ pos, prices, onClose }) {
       <td className="py-2.5 px-3">
         <button onClick={() => onClose(pos.id)}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}
+          style={{ background: 'rgba(239,68,68,0.1)', color: '#d44333', border: '1px solid rgba(239,68,68,0.2)' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.25)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.transform = 'none'; }}
         >
@@ -225,7 +225,7 @@ export default function ForexCommodities() {
             { label: '24h High', value: stats.high.toFixed(currentPrice > 100 ? 2 : 4), cls: 'text-emerald-400/80' },
             { label: '24h Low', value: stats.low.toFixed(currentPrice > 100 ? 2 : 4), cls: 'text-red-400/80' },
             { label: 'Spread', value: spread.toString(), cls: 'text-white/50' },
-            { label: 'Leverage', value: `${leverage}x`, cls: 'text-yellow-400' },
+            { label: 'Leverage', value: `${leverage}x`, cls: 'text-blue-400' },
             { label: 'Open P&L', value: `${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`, cls: metrics.pnl >= 0 ? 'text-emerald-400' : 'text-red-400' },
           ].map(s => (
             <div key={s.label}>
@@ -263,7 +263,7 @@ export default function ForexCommodities() {
               {['positions', 'history'].map(tab => (
                 <button key={tab} onClick={() => setBottomTab(tab)}
                   className="nav-tab"
-                  style={{ color: bottomTab === tab ? '#ffd700' : 'rgba(255,255,255,0.35)', borderBottomColor: bottomTab === tab ? '#ffd700' : 'transparent' }}>
+                  style={{ color: bottomTab === tab ? '#3B82F6' : 'rgba(255,255,255,0.35)', borderBottomColor: bottomTab === tab ? '#3B82F6' : 'transparent' }}>
                   {tab === 'positions' ? `Open Positions (${myPositions.length})` : 'History'}
                 </button>
               ))}
@@ -273,7 +273,7 @@ export default function ForexCommodities() {
                 {[
                   { l: 'Balance', v: `$${formatCurrency(metrics.balance)}`, c: 'text-white/50' },
                   { l: 'Equity', v: `$${formatCurrency(metrics.equity)}`, c: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                  { l: 'Margin', v: `$${formatCurrency(metrics.usedMargin)}`, c: 'text-yellow-400/70' },
+                  { l: 'Margin', v: `$${formatCurrency(metrics.usedMargin)}`, c: 'text-blue-400/70' },
                   { l: 'Free Margin', v: `$${formatCurrency(metrics.freeMargin)}`, c: 'text-white/50' },
                 ].map(s => (
                   <div key={s.l} className="hidden lg:flex items-center gap-1.5">
@@ -327,10 +327,10 @@ export default function ForexCommodities() {
                   className="py-4 rounded-xl transition-all duration-200 flex flex-col items-center gap-1"
                   style={{
                     background: direction === 'buy'
-                      ? 'linear-gradient(160deg, #065f46, #10b981)'
+                      ? 'linear-gradient(160deg, #065f46, #1ea774)'
                       : 'rgba(16,185,129,0.06)',
-                    color: direction === 'buy' ? '#fff' : '#10b981',
-                    border: `1px solid ${direction === 'buy' ? '#10b981' : 'rgba(16,185,129,0.2)'}`,
+                    color: direction === 'buy' ? '#fff' : '#1ea774',
+                    border: `1px solid ${direction === 'buy' ? '#1ea774' : 'rgba(16,185,129,0.2)'}`,
                     boxShadow: direction === 'buy' ? '0 4px 20px rgba(16,185,129,0.3)' : 'none',
                     transform: direction === 'buy' ? 'translateY(-1px)' : 'none',
                   }}>
@@ -345,10 +345,10 @@ export default function ForexCommodities() {
                   className="py-4 rounded-xl transition-all duration-200 flex flex-col items-center gap-1"
                   style={{
                     background: direction === 'sell'
-                      ? 'linear-gradient(160deg, #7f1d1d, #ef4444)'
+                      ? 'linear-gradient(160deg, #7f1d1d, #d44333)'
                       : 'rgba(239,68,68,0.06)',
-                    color: direction === 'sell' ? '#fff' : '#ef4444',
-                    border: `1px solid ${direction === 'sell' ? '#ef4444' : 'rgba(239,68,68,0.2)'}`,
+                    color: direction === 'sell' ? '#fff' : '#d44333',
+                    border: `1px solid ${direction === 'sell' ? '#d44333' : 'rgba(239,68,68,0.2)'}`,
                     boxShadow: direction === 'sell' ? '0 4px 20px rgba(239,68,68,0.3)' : 'none',
                     transform: direction === 'sell' ? 'translateY(-1px)' : 'none',
                   }}>
@@ -379,10 +379,10 @@ export default function ForexCommodities() {
                   <button key={l} onClick={() => setLeverage(l)}
                     className="py-2.5 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: leverage === l ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                      color: leverage === l ? '#ffd700' : 'rgba(255,255,255,0.4)',
-                      border: `1px solid ${leverage === l ? 'rgba(255,215,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                      boxShadow: leverage === l ? '0 0 10px rgba(255,215,0,0.1)' : 'none',
+                      background: leverage === l ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
+                      color: leverage === l ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                      border: `1px solid ${leverage === l ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      boxShadow: leverage === l ? '0 0 10px rgba(59,130,246,0.1)' : 'none',
                     }}>
                     {l}x
                   </button>
@@ -406,9 +406,9 @@ export default function ForexCommodities() {
                   <button key={v} onClick={() => setVolume(v.toString())}
                     className="py-2 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      background: volume === v.toString() ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.04)',
-                      color: volume === v.toString() ? '#ffd700' : 'rgba(255,255,255,0.4)',
-                      border: `1px solid ${volume === v.toString() ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                      background: volume === v.toString() ? 'rgba(59,130,246,0.08)' : 'rgba(255,255,255,0.04)',
+                      color: volume === v.toString() ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                      border: `1px solid ${volume === v.toString() ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.06)'}`,
                     }}>
                     {v}
                   </button>
@@ -482,8 +482,8 @@ export default function ForexCommodities() {
               className="w-full py-4 rounded-xl font-bold text-base transition-all duration-200"
               style={{
                 background: direction === 'buy'
-                  ? 'linear-gradient(135deg, #065f46 0%, #10b981 50%, #065f46 100%)'
-                  : 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 50%, #7f1d1d 100%)',
+                  ? 'linear-gradient(135deg, #065f46 0%, #1ea774 50%, #065f46 100%)'
+                  : 'linear-gradient(135deg, #7f1d1d 0%, #d44333 50%, #7f1d1d 100%)',
                 backgroundSize: '200% 100%',
                 boxShadow: direction === 'buy'
                   ? '0 4px 24px rgba(16,185,129,0.35)'

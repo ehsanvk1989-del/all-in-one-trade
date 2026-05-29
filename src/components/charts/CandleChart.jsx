@@ -89,7 +89,7 @@ export default function CandleChart({ symbol, basePrice, height = 280 }) {
     candles.forEach((c, i) => {
       const x = padLeft + (i / candles.length) * chartW;
       const isGreen = c.close >= c.open;
-      const color = isGreen ? '#10b981' : '#ef4444';
+      const color = isGreen ? '#1ea774' : '#d44333';
 
       // Wick
       ctx.strokeStyle = color;
@@ -114,7 +114,7 @@ export default function CandleChart({ symbol, basePrice, height = 280 }) {
     if (candles.length > 0) {
       const lastClose = candles[candles.length - 1].close;
       const y = toY(lastClose);
-      ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+      ctx.strokeStyle = 'rgba(59,130,246,0.5)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
@@ -124,7 +124,7 @@ export default function CandleChart({ symbol, basePrice, height = 280 }) {
       ctx.setLineDash([]);
 
       // Price label
-      ctx.fillStyle = '#ffd700';
+      ctx.fillStyle = '#3B82F6';
       ctx.fillRect(W - padRight, y - 8, padRight, 16);
       ctx.fillStyle = '#000';
       ctx.font = 'bold 9px JetBrains Mono, monospace';

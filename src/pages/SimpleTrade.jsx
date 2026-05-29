@@ -13,19 +13,19 @@ if (typeof document !== 'undefined' && !document.getElementById('simple-trade-an
       50%       { box-shadow: 0 0 40px rgba(5,150,105,0.6), 0 0 80px rgba(5,150,105,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
     }
     @keyframes sellGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(220,38,38,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
-      50%       { box-shadow: 0 0 40px rgba(220,38,38,0.6), 0 0 80px rgba(220,38,38,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
+      0%, 100% { box-shadow: 0 0 20px rgba(212,67,51,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
+      50%       { box-shadow: 0 0 40px rgba(212,67,51,0.6), 0 0 80px rgba(212,67,51,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
     }
     @keyframes pnlCount {
       from { opacity: 0.5; transform: scale(0.97); }
       to   { opacity: 1;   transform: scale(1); }
     }
     @keyframes priceBlinkUp {
-      0%, 100% { color: #10b981; }
+      0%, 100% { color: #1ea774; }
       50%       { color: #6ee7b7; }
     }
     @keyframes priceBlinkDown {
-      0%, 100% { color: #ef4444; }
+      0%, 100% { color: #d44333; }
       50%       { color: #fca5a5; }
     }
   `;
@@ -59,9 +59,9 @@ function AssetButton({ asset, selected, price, onChange }) {
       onClick={() => onChange(asset)}
       className="flex flex-col items-center p-3 rounded-xl transition-all duration-200 min-w-0"
       style={{
-        background: selected ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${selected ? 'rgba(255,215,0,0.35)' : 'rgba(255,255,255,0.06)'}`,
-        boxShadow: selected ? '0 0 24px rgba(255,215,0,0.12)' : 'none',
+        background: selected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${selected ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.06)'}`,
+        boxShadow: selected ? '0 0 24px rgba(59,130,246,0.12)' : 'none',
         transform: selected ? 'translateY(-1px)' : 'none',
       }}
     >
@@ -109,7 +109,7 @@ function TradeRow({ pos, prices, onClose }) {
     <div className="flex items-center gap-2 p-3 rounded-xl transition-all"
       style={{
         background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${isProfit ? 'rgba(5,150,105,0.15)' : 'rgba(220,38,38,0.15)'}`,
+        border: `1px solid ${isProfit ? 'rgba(5,150,105,0.15)' : 'rgba(212,67,51,0.15)'}`,
       }}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ function TradeRow({ pos, prices, onClose }) {
           <span className={`badge-${pos.direction === 'buy' ? 'green' : 'red'} text-xs`}>
             {pos.direction.toUpperCase()}
           </span>
-          <span className="badge-gold text-xs">{pos.leverage}x</span>
+          <span className="badge-brand text-xs">{pos.leverage}x</span>
         </div>
         <div className="text-white/30 text-xs mt-0.5">
           Vol: {pos.volume} · Entry: {pos.openPrice.toFixed(pos.openPrice > 100 ? 2 : 4)}
@@ -133,7 +133,7 @@ function TradeRow({ pos, prices, onClose }) {
         onClick={() => onClose(pos.id)}
         className="ml-1 w-7 h-7 rounded-lg flex items-center justify-center transition-all"
         style={{ background: 'rgba(255,255,255,0.05)' }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,38,38,0.2)'; }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,67,51,0.2)'; }}
         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
       >
         <X size={13} className="text-white/50" />
@@ -232,8 +232,8 @@ export default function SimpleTrade() {
       <div className="px-5 pt-4 pb-2">
         <div className="flex items-center gap-4 mb-4 p-4 rounded-xl"
           style={{
-            background: tradeFlash ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${tradeFlash ? 'rgba(255,215,0,0.3)' : 'rgba(255,215,0,0.08)'}`,
+            background: tradeFlash ? 'rgba(59,130,246,0.08)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${tradeFlash ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.08)'}`,
             transition: 'all 0.4s ease',
           }}>
           <div className="text-3xl select-none">{selectedAsset.icon}</div>
@@ -259,7 +259,7 @@ export default function SimpleTrade() {
           </div>
           <div className="ml-auto text-right hidden sm:block">
             <div className="text-white/30 text-xs">Free Margin</div>
-            <div className="font-mono font-bold text-yellow-400">${formatCurrency(metrics.freeMargin)}</div>
+            <div className="font-mono font-bold text-blue-400">${formatCurrency(metrics.freeMargin)}</div>
           </div>
         </div>
 
@@ -300,9 +300,9 @@ export default function SimpleTrade() {
                 className="py-4 rounded-xl font-black text-sm transition-all duration-200 relative overflow-hidden"
                 style={{
                   background: direction === 'buy'
-                    ? 'linear-gradient(135deg, #064e3b 0%, #059669 60%, #10b981 100%)'
+                    ? 'linear-gradient(135deg, #064e3b 0%, #059669 60%, #1ea774 100%)'
                     : 'rgba(5,150,105,0.07)',
-                  border: `1px solid ${direction === 'buy' ? '#10b981' : 'rgba(5,150,105,0.2)'}`,
+                  border: `1px solid ${direction === 'buy' ? '#1ea774' : 'rgba(5,150,105,0.2)'}`,
                   color: direction === 'buy' ? '#fff' : '#059669',
                   animation: direction === 'buy' ? 'buyGlow 2.5s ease-in-out infinite' : 'none',
                   fontSize: '0.875rem',
@@ -317,9 +317,9 @@ export default function SimpleTrade() {
                 className="py-4 rounded-xl font-black text-sm transition-all duration-200 relative overflow-hidden"
                 style={{
                   background: direction === 'sell'
-                    ? 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 60%, #ef4444 100%)'
-                    : 'rgba(220,38,38,0.07)',
-                  border: `1px solid ${direction === 'sell' ? '#ef4444' : 'rgba(220,38,38,0.2)'}`,
+                    ? 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 60%, #d44333 100%)'
+                    : 'rgba(212,67,51,0.07)',
+                  border: `1px solid ${direction === 'sell' ? '#d44333' : 'rgba(212,67,51,0.2)'}`,
                   color: direction === 'sell' ? '#fff' : '#dc2626',
                   animation: direction === 'sell' ? 'sellGlow 2.5s ease-in-out infinite' : 'none',
                   fontSize: '0.875rem',
@@ -348,9 +348,9 @@ export default function SimpleTrade() {
                   <button key={v} onClick={() => setVolume(v.toString())}
                     className="py-1.5 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: volume === v.toString() ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${volume === v.toString() ? 'rgba(255,215,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                      color: volume === v.toString() ? '#ffd700' : 'rgba(255,255,255,0.4)',
+                      background: volume === v.toString() ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${volume === v.toString() ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      color: volume === v.toString() ? '#3B82F6' : 'rgba(255,255,255,0.4)',
                     }}>
                     {v}
                   </button>
@@ -361,17 +361,17 @@ export default function SimpleTrade() {
             {/* Leverage */}
             <div>
               <label className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5 block">
-                Leverage: <span className="text-yellow-400 font-black">{leverage}x</span>
+                Leverage: <span className="text-blue-400 font-black">{leverage}x</span>
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {SIMPLE_LEVERAGE_OPTIONS.map(lev => (
                   <button key={lev} onClick={() => setLeverage(lev)}
                     className="py-2 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: leverage === lev ? 'rgba(255,215,0,0.14)' : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${leverage === lev ? 'rgba(255,215,0,0.35)' : 'rgba(255,255,255,0.06)'}`,
-                      color: leverage === lev ? '#ffd700' : 'rgba(255,255,255,0.4)',
-                      boxShadow: leverage === lev ? '0 0 10px rgba(255,215,0,0.15)' : 'none',
+                      background: leverage === lev ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${leverage === lev ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                      color: leverage === lev ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                      boxShadow: leverage === lev ? '0 0 10px rgba(59,130,246,0.15)' : 'none',
                     }}>
                     {lev}x
                   </button>
@@ -381,9 +381,9 @@ export default function SimpleTrade() {
 
             {/* Notional value */}
             <div className="flex items-center justify-between px-3 py-2 rounded-lg"
-              style={{ background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.08)' }}>
+              style={{ background: 'rgba(59,130,246,0.04)', border: '1px solid rgba(59,130,246,0.08)' }}>
               <span className="text-white/40 text-xs">Position Value</span>
-              <span className="font-mono text-yellow-400 font-bold text-sm">${formatCurrency(parseFloat(notionalValue))}</span>
+              <span className="font-mono text-blue-400 font-bold text-sm">${formatCurrency(parseFloat(notionalValue))}</span>
             </div>
 
             {/* Stop Loss & Take Profit */}
@@ -404,7 +404,7 @@ export default function SimpleTrade() {
 
             {error && (
               <div className="flex items-center gap-2 p-2.5 rounded-lg text-xs"
-                style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)' }}>
+                style={{ background: 'rgba(212,67,51,0.1)', border: '1px solid rgba(212,67,51,0.2)' }}>
                 <AlertCircle size={12} className="text-red-400 flex-shrink-0" />
                 <span className="text-red-400">{error}</span>
               </div>
@@ -445,7 +445,7 @@ export default function SimpleTrade() {
             }}>
             <div className="flex items-center justify-between mb-4">
               <div className="text-white/70 text-sm font-bold uppercase tracking-wider">Open Positions</div>
-              <span className="badge-gold">{myPositions.length}</span>
+              <span className="badge-brand">{myPositions.length}</span>
             </div>
 
             {myPositions.length === 0 ? (
@@ -467,7 +467,7 @@ export default function SimpleTrade() {
               {[
                 { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'text-white' },
                 { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                { label: 'Margin', value: `$${formatCurrency(metrics.usedMargin)}`, color: 'text-yellow-400' },
+                { label: 'Margin', value: `$${formatCurrency(metrics.usedMargin)}`, color: 'text-blue-400' },
                 { label: 'Free', value: `$${formatCurrency(metrics.freeMargin)}`, color: 'text-white' },
               ].map(stat => (
                 <div key={stat.label} className="text-center p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>

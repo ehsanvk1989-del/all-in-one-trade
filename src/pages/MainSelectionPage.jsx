@@ -43,7 +43,7 @@ function PlatformCard({ platform, onEnter, index }) {
       style={{
         animationDelay: `${index * 0.12}s`,
         background: 'var(--bg-card)',
-        border: `1px solid ${hovered ? 'rgba(201,168,76,0.25)' : 'var(--border-0)'}`,
+        border: `1px solid ${hovered ? 'rgba(59,130,246,0.25)' : 'var(--border-0)'}`,
         boxShadow: hovered ? '0 12px 40px rgba(0,0,0,0.5)' : '0 2px 12px rgba(0,0,0,0.3)',
         transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
         transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
@@ -54,17 +54,17 @@ function PlatformCard({ platform, onEnter, index }) {
     >
       {/* Top accent line */}
       <div className="h-px w-full"
-        style={{ background: hovered ? 'linear-gradient(90deg, transparent, var(--gold), transparent)' : 'transparent', transition: 'background 0.3s' }} />
+        style={{ background: hovered ? 'linear-gradient(90deg, transparent, var(--brand), transparent)' : 'transparent', transition: 'background 0.3s' }} />
 
       <div className="p-6 flex flex-col flex-1">
         {/* Header row */}
         <div className="flex items-start justify-between mb-5">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center"
-            style={{ background: hovered ? 'var(--gold-bg)' : 'var(--bg-surface)', border: '1px solid var(--border-1)', transition: 'background 0.3s' }}>
-            <Icon size={20} style={{ color: hovered ? 'var(--gold-light)' : 'var(--text-2)', transition: 'color 0.3s' }} />
+            style={{ background: hovered ? 'var(--brand-bg)' : 'var(--bg-surface)', border: '1px solid var(--border-1)', transition: 'background 0.3s' }}>
+            <Icon size={20} style={{ color: hovered ? 'var(--brand-light)' : 'var(--text-2)', transition: 'color 0.3s' }} />
           </div>
           <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider"
-            style={{ background: 'var(--gold-bg2)', color: 'var(--gold)' }}>
+            style={{ background: 'var(--brand-bg2)', color: 'var(--brand)' }}>
             {platform.tag}
           </span>
         </div>
@@ -86,7 +86,7 @@ function PlatformCard({ platform, onEnter, index }) {
         <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 mb-6">
           {platform.features.map(feature => (
             <div key={feature} className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: 'var(--gold)' }} />
+              <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: 'var(--brand)' }} />
               <span className="text-xs" style={{ color: 'var(--text-3)' }}>{feature}</span>
             </div>
           ))}
@@ -96,9 +96,9 @@ function PlatformCard({ platform, onEnter, index }) {
         <button
           className="w-full py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200"
           style={{
-            background: hovered ? 'linear-gradient(135deg, var(--gold-dark), var(--gold))' : 'var(--bg-surface)',
-            color: hovered ? '#0c0d13' : 'var(--gold)',
-            border: '1px solid rgba(201,168,76,0.2)',
+            background: hovered ? 'linear-gradient(135deg, var(--brand), var(--brand-light))' : 'var(--bg-surface)',
+            color: hovered ? '#fff' : 'var(--brand)',
+            border: '1px solid rgba(59,130,246,0.2)',
           }}
         >
           <span>Enter {platform.title}</span>
@@ -120,12 +120,12 @@ export default function MainSelectionPage() {
         {/* Page header */}
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-3"
-            style={{ background: 'var(--gold-bg2)', border: '1px solid rgba(201,168,76,0.15)' }}>
-            <span className="text-xs font-semibold tracking-wider" style={{ color: 'var(--gold)' }}>CHOOSE YOUR MARKET</span>
+            style={{ background: 'var(--brand-bg2)', border: '1px solid rgba(59,130,246,0.15)' }}>
+            <span className="text-xs font-semibold tracking-wider" style={{ color: 'var(--brand)' }}>CHOOSE YOUR MARKET</span>
           </div>
           <h1 className="text-2xl font-bold mb-1.5" style={{ color: 'var(--text-1)' }}>
             Welcome back,{' '}
-            <span className="text-gradient-gold capitalize">
+            <span className="text-gradient-brand capitalize">
               {user?.name || 'Trader'}
             </span>
           </h1>
@@ -144,7 +144,7 @@ export default function MainSelectionPage() {
           ].map(stat => (
             <div key={stat.label} className="flex flex-col gap-0.5">
               <div className="font-mono font-bold text-base"
-                style={{ color: stat.pnl !== undefined ? (stat.pnl >= 0 ? 'var(--green)' : 'var(--red)') : stat.highlight ? 'var(--gold-light)' : 'var(--text-1)' }}>
+                style={{ color: stat.pnl !== undefined ? (stat.pnl >= 0 ? 'var(--green)' : 'var(--red)') : stat.highlight ? 'var(--brand-light)' : 'var(--text-1)' }}>
                 {stat.value}
               </div>
               <div className="text-xs" style={{ color: 'var(--text-3)' }}>{stat.label}</div>
@@ -196,7 +196,7 @@ export default function MainSelectionPage() {
                 >
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ background: 'var(--bg-surface)' }}>
-                    <Icon size={14} style={{ color: 'var(--gold)' }} />
+                    <Icon size={14} style={{ color: 'var(--brand)' }} />
                   </div>
                   <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-1)' }}>{item.label}</div>
