@@ -94,47 +94,6 @@ export function getVolatility(history) {
   return { label: 'Low', level: 1, color: 'var(--green)' };
 }
 
-// Deterministic-ish AI insight built from live analytics
-export function buildInsight({ change, sentiment, volatility, direction }) {
-  const aligned =
-    (direction && (direction === 'long' || direction === 'buy') && sentiment.dir === 'up') ||
-    (direction && (direction === 'short' || direction === 'sell') && sentiment.dir === 'down');
-  const opposed =
-    (direction && (direction === 'long' || direction === 'buy') && sentiment.dir === 'down') ||
-    (direction && (direction === 'short' || direction === 'sell') && sentiment.dir === 'up');
-
-  let confidence = 50 + (sentiment.score - 50) * (sentiment.dir === 'flat' ? 0.3 : 1);
-  if (aligned) confidence += 18;
-  if (opposed) confidence -= 18;
-  if (volatility.level === 3) confidence -= 8;
-  confidence = Math.max(12, Math.min(94, Math.round(confidence)));
-
-  const trendTxt = sentiment.dir === 'up'
-    ? 'Short-term momentum is building to the upside'
-    : sentiment.dir === 'down'
-      ? 'Short-term momentum is leaning bearish'
-      : 'Price action is balanced with no clear trend';
-
-  const volTxt = volatility.level === 3
-    ? 'Volatility is elevated — size down and widen stops'
-    : volatility.level === 2
-      ? 'Volatility is moderate'
-      : 'Volatility is contained';
-
-  const advice = aligned
-    ? `Your ${direction} bias aligns with the prevailing trend.`
-    : opposed
-      ? `Your ${direction} bias runs counter to current flow — manage risk tightly.`
-      : 'Wait for confirmation before committing size.';
-
-  return {
-    confidence,
-    headline: `${trendTxt} (${change >= 0 ? '+' : ''}${change.toFixed(2)}%).`,
-    body: `${volTxt}. ${advice}`,
-    tone: aligned ? 'good' : opposed ? 'bad' : 'neutral',
-  };
-}
-
 // ── Sparkline ────────────────────────────────────────────────────────────────
 export function Sparkline({ history, up, w = 72, h = 26, strokeWidth = 1.5, id = 'x', fill = true }) {
   if (!history || history.length < 2) return <div style={{ width: w, height: h }} />;

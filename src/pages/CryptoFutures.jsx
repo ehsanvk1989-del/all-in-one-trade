@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AlertCircle, Star, Flame, Zap, Brain, Shield, ChevronDown } from 'lucide-react';
+import { AlertCircle, Star, Flame, Zap, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
   CRYPTO_FUTURES_ASSETS,
@@ -8,7 +8,7 @@ import {
 import TradingViewWidget from '../components/charts/TradingViewWidget';
 import {
   injectTradeAnims, usePriceHistory, useFavorites,
-  getSentiment, getVolatility, buildInsight,
+  getSentiment, getVolatility,
   Sparkline, MeterBar, Pill, StatChip, RangeBar,
 } from '../components/trade/TradeKit';
 
@@ -250,7 +250,6 @@ export default function CryptoFutures() {
   const [limitPrice, setLimitPrice] = useState('');
   const [stopLoss, setStopLoss] = useState('');
   const [takeProfit, setTakeProfit] = useState('');
-  const [showTpSl, setShowTpSl] = useState(false);
   const [bottomTab, setBottomTab] = useState('positions');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -297,7 +296,6 @@ export default function CryptoFutures() {
   const history = histRef.current[selectedAsset.symbol] || [];
   const sentiment = getSentiment(history);
   const volatility = getVolatility(history);
-  const insight = buildInsight({ change: priceChange, sentiment, volatility, direction });
 
   // Hot market = biggest absolute mover
   const hotSymbol = CRYPTO_FUTURES_ASSETS.reduce((hot, a) => {
@@ -595,51 +593,80 @@ export default function CryptoFutures() {
                 )}
               </div>
 
-              {/* AI insight */}
-              <div className="rounded-xl p-3"
-                style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(124,58,237,0.05))', border: '1px solid rgba(59,130,246,0.18)' }}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Brain size={13} style={{ color: 'var(--brand-light)' }} />
-                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--brand-light)' }}>AI Insight</span>
+              {/* TP / SL */}
+              <div>
+                <SectionLabel>Take Profit / Stop Loss</SectionLabel>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(30,167,116,0.75)' }}>Take Profit</label>
+                    <input type="number" value={takeProfit} onChange={e => setTakeProfit(e.target.value)}
+                      placeholder="Optional" className="input-dark font-mono text-sm py-2.5"
+                      style={{ borderColor: takeProfit ? 'rgba(30,167,116,0.35)' : undefined }} />
+                    {takeProfit && parseFloat(takeProfit) > 0 && (
+                      <div className="mt-1 text-xs font-mono" style={{ color: 'var(--green)' }}>
+                        +${formatCurrency(Math.abs(parseFloat(takeProfit) - currentPrice) * (parseFloat(amount) || 0) * leverage / currentPrice)}
+                      </div>
+                    )}
                   </div>
-                  <span className="font-mono text-xs font-bold"
-                    style={{ color: insight.tone === 'good' ? 'var(--green)' : insight.tone === 'bad' ? 'var(--red)' : 'var(--warn)' }}>
-                    {insight.confidence}% conf
-                  </span>
-                </div>
-                <p className="text-xs leading-relaxed mb-1" style={{ color: 'var(--text-2)' }}>{insight.headline}</p>
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-3)' }}>{insight.body}</p>
-                <div className="mt-2">
-                  <MeterBar value={insight.confidence}
-                    color={insight.tone === 'good' ? 'linear-gradient(90deg,var(--green),#6ee7b7)' : insight.tone === 'bad' ? 'linear-gradient(90deg,var(--red),#fca5a5)' : 'linear-gradient(90deg,var(--brand),var(--brand-light))'} />
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(212,67,51,0.75)' }}>Stop Loss</label>
+                    <input type="number" value={stopLoss} onChange={e => setStopLoss(e.target.value)}
+                      placeholder="Optional" className="input-dark font-mono text-sm py-2.5"
+                      style={{ borderColor: stopLoss ? 'rgba(212,67,51,0.35)' : undefined }} />
+                    {stopLoss && parseFloat(stopLoss) > 0 && (
+                      <div className="mt-1 text-xs font-mono" style={{ color: 'var(--red)' }}>
+                        −${formatCurrency(Math.abs(parseFloat(stopLoss) - currentPrice) * (parseFloat(amount) || 0) * leverage / currentPrice)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* TP / SL */}
-              <div>
-                <button onClick={() => setShowTpSl(v => !v)}
-                  className="w-full flex items-center justify-between py-1 text-xs font-semibold uppercase tracking-wider transition-colors"
-                  style={{ color: showTpSl ? 'var(--brand)' : 'var(--text-3)' }}>
-                  <span>Take Profit / Stop Loss</span>
-                  <ChevronDown size={13} style={{ transform: showTpSl ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                </button>
-                {showTpSl && (
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    <div>
-                      <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(30,167,116,0.75)' }}>Take Profit</label>
-                      <input type="number" value={takeProfit} onChange={e => setTakeProfit(e.target.value)}
-                        placeholder="Optional" className="input-dark font-mono text-sm py-2.5"
-                        style={{ borderColor: takeProfit ? 'rgba(30,167,116,0.35)' : undefined }} />
+              {/* Risk summary */}
+              <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-0)' }}>
+                <div className="px-3 py-2 flex items-center gap-1.5" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-0)' }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Risk Overview</span>
+                </div>
+                <div className="px-3 py-3 space-y-2">
+                  {[
+                    {
+                      label: 'Risk Level',
+                      value: riskLevel.l,
+                      color: riskLevel.c,
+                    },
+                    {
+                      label: 'Est. Liquidation',
+                      value: parseFloat(amount) > 0 ? liqPrice.toFixed(2) : '—',
+                      color: 'var(--warn)',
+                    },
+                    {
+                      label: 'Liq. Distance',
+                      value: parseFloat(amount) > 0
+                        ? `${(Math.abs(currentPrice - liqPrice) / currentPrice * 100).toFixed(2)}%`
+                        : '—',
+                      color: (Math.abs(currentPrice - liqPrice) / currentPrice * 100) < 10 ? 'var(--red)' : 'var(--text-2)',
+                    },
+                    {
+                      label: 'Max Loss (margin)',
+                      value: parseFloat(amount) > 0 ? `$${formatCurrency(parseFloat(amount))}` : '—',
+                      color: 'var(--text-2)',
+                    },
+                  ].map(row => (
+                    <div key={row.label} className="flex items-center justify-between">
+                      <span className="text-xs" style={{ color: 'var(--text-3)' }}>{row.label}</span>
+                      <span className="font-mono text-xs font-semibold" style={{ color: row.color }}>{row.value}</span>
                     </div>
-                    <div>
-                      <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(212,67,51,0.75)' }}>Stop Loss</label>
-                      <input type="number" value={stopLoss} onChange={e => setStopLoss(e.target.value)}
-                        placeholder="Optional" className="input-dark font-mono text-sm py-2.5"
-                        style={{ borderColor: stopLoss ? 'rgba(212,67,51,0.35)' : undefined }} />
+                  ))}
+                  <div className="pt-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-xs" style={{ color: 'var(--text-3)' }}>Leverage risk</span>
+                      <span className="text-xs font-semibold" style={{ color: riskLevel.c }}>{leverage}x</span>
                     </div>
+                    <MeterBar value={Math.min(100, (leverage / 100) * 100)}
+                      color={leverage <= 10 ? 'var(--green)' : leverage <= 25 ? 'var(--warn)' : leverage <= 50 ? '#f97316' : 'var(--red)'}
+                      height={4} />
                   </div>
-                )}
+                </div>
               </div>
 
               {error && (
