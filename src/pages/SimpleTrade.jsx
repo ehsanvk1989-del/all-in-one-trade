@@ -1,143 +1,303 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { TrendingUp, TrendingDown, X, ChevronUp, ChevronDown, AlertCircle, Zap } from 'lucide-react';
+import { X, Zap, Activity, AlertCircle, Target } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SIMPLE_TRADE_ASSETS, SIMPLE_LEVERAGE_OPTIONS, formatCurrency } from '../utils/mockData';
 
-// Inject cinematic animations once
-if (typeof document !== 'undefined' && !document.getElementById('simple-trade-anims')) {
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+if (typeof document !== 'undefined' && !document.getElementById('st-anims')) {
   const s = document.createElement('style');
-  s.id = 'simple-trade-anims';
+  s.id = 'st-anims';
   s.textContent = `
-    @keyframes buyGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(5,150,105,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
-      50%       { box-shadow: 0 0 40px rgba(5,150,105,0.6), 0 0 80px rgba(5,150,105,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
+    @keyframes st-price-up {
+      0%   { color: #6ee7b7; text-shadow: 0 0 14px rgba(30,167,116,0.8); }
+      100% { color: #1ea774; text-shadow: none; }
     }
-    @keyframes sellGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(212,67,51,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
-      50%       { box-shadow: 0 0 40px rgba(212,67,51,0.6), 0 0 80px rgba(212,67,51,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
+    @keyframes st-price-down {
+      0%   { color: #fca5a5; text-shadow: 0 0 14px rgba(212,67,51,0.8); }
+      100% { color: #d44333; text-shadow: none; }
     }
-    @keyframes pnlCount {
-      from { opacity: 0.5; transform: scale(0.97); }
-      to   { opacity: 1;   transform: scale(1); }
+    @keyframes st-buy-glow {
+      0%, 100% { box-shadow: 0 4px 20px rgba(30,167,116,0.25); }
+      50%       { box-shadow: 0 4px 48px rgba(30,167,116,0.55), 0 0 80px rgba(30,167,116,0.12); }
     }
-    @keyframes priceBlinkUp {
-      0%, 100% { color: #1ea774; }
-      50%       { color: #6ee7b7; }
+    @keyframes st-sell-glow {
+      0%, 100% { box-shadow: 0 4px 20px rgba(212,67,51,0.25); }
+      50%       { box-shadow: 0 4px 48px rgba(212,67,51,0.55), 0 0 80px rgba(212,67,51,0.12); }
     }
-    @keyframes priceBlinkDown {
-      0%, 100% { color: #d44333; }
-      50%       { color: #fca5a5; }
+    @keyframes st-pnl {
+      from { opacity: 0.55; transform: translateY(2px); }
+      to   { opacity: 1;    transform: translateY(0); }
     }
+    @keyframes st-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.025); box-shadow: 0 0 40px rgba(59,130,246,0.4); }
+      100% { transform: scale(1); }
+    }
+    @keyframes st-card-in {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+    .st-price-up   { animation: st-price-up   0.65s ease forwards; }
+    .st-price-down { animation: st-price-down 0.65s ease forwards; }
+    .st-pnl        { animation: st-pnl   0.28s ease forwards; }
+    .st-pop        { animation: st-pop   0.5s  cubic-bezier(0.34,1.56,0.64,1); }
+    .st-card-in    { animation: st-card-in 0.35s ease forwards; }
   `;
   document.head.appendChild(s);
 }
 
-// Per-symbol volatility per tick (realistic small moves)
-const SIM_VOLATILITY = {
-  XAUUSD: 0.00025,
-  OIL:    0.00035,
-  EURUSD: 0.00010,
-  GBPUSD: 0.00010,
-  BTC:    0.00045,
-  ETH:    0.00055,
-};
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-function buildSimPrices() {
-  const out = {};
-  SIMPLE_TRADE_ASSETS.forEach(a => { out[a.symbol] = a.basePrice; });
-  return out;
+const SIM_VOL = {
+  XAUUSD: 0.00025, OIL: 0.00035,
+  EURUSD: 0.00010, GBPUSD: 0.00010,
+  BTC: 0.00045,    ETH: 0.00055,
+};
+const HISTORY_LEN = 40;
+
+function initSimPrices() {
+  return Object.fromEntries(SIMPLE_TRADE_ASSETS.map(a => [a.symbol, a.basePrice]));
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sparkline ────────────────────────────────────────────────────────────────
 
-function AssetButton({ asset, selected, price, onChange }) {
+function Sparkline({ history, isUp, w = 68, h = 26, id }) {
+  if (!history || history.length < 2) return <div style={{ width: w, height: h }} />;
+  const min = Math.min(...history);
+  const max = Math.max(...history);
+  const range = max - min || 1;
+  const pts = history.map((v, i) => {
+    const x = (i / (history.length - 1)) * w;
+    const y = h - 2 - ((v - min) / range) * (h - 4);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const fill = `0,${h} ${pts} ${w},${h}`;
+  const col = isUp ? '#1ea774' : '#d44333';
+  const gid = `sg-${id}`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: 'visible' }}>
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={col} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={col} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={fill} fill={`url(#${gid})`} />
+      <polyline points={pts} fill="none" stroke={col} strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── Asset Card ───────────────────────────────────────────────────────────────
+
+function AssetCard({ asset, selected, price, history, onChange }) {
   const change = ((price - asset.basePrice) / asset.basePrice) * 100;
   const isUp = change >= 0;
-
   return (
     <button
       onClick={() => onChange(asset)}
-      className="flex flex-col items-center p-3 rounded-xl transition-all duration-200 min-w-0"
+      className="flex flex-col p-3 rounded-xl transition-all duration-200 flex-shrink-0 text-left"
       style={{
-        background: selected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${selected ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.06)'}`,
-        boxShadow: selected ? '0 0 24px rgba(59,130,246,0.12)' : 'none',
-        transform: selected ? 'translateY(-1px)' : 'none',
-      }}
-    >
-      <span className="text-lg mb-1">{asset.icon}</span>
-      <div className="flex items-center gap-1">
-        <div className="w-1 h-1 rounded-full bg-emerald-400 flex-shrink-0" />
-        <div className="text-white/80 text-xs font-semibold">{asset.symbol}</div>
+        minWidth: 108,
+        background: selected
+          ? 'linear-gradient(135deg, rgba(59,130,246,0.13), rgba(124,58,237,0.08))'
+          : 'var(--bg-card)',
+        border: `1px solid ${selected ? 'rgba(59,130,246,0.38)' : 'var(--border-0)'}`,
+        boxShadow: selected ? '0 0 24px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.04)' : 'none',
+        transform: selected ? 'translateY(-2px)' : 'none',
+      }}>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xl">{asset.icon}</span>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)', animation: 'pulse 2s infinite' }} />
       </div>
-      <div className={`text-xs font-mono mt-0.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+      <div className="text-xs font-bold mb-0.5" style={{ color: 'var(--text-1)' }}>{asset.symbol}</div>
+      <div className="text-xs font-mono mb-2" style={{ color: 'var(--text-3)' }}>
+        {price >= 1000 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
+      </div>
+      <Sparkline history={history} isUp={isUp} w={72} h={24} id={asset.symbol} />
+      <div className="text-xs font-bold mt-1.5"
+        style={{ color: isUp ? 'var(--green)' : 'var(--red)' }}>
         {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
       </div>
     </button>
   );
 }
 
-function LivePnL({ pos, prices }) {
-  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
-  const priceDiff = pos.direction === 'buy'
-    ? currentPrice - pos.openPrice
-    : pos.openPrice - currentPrice;
-  const pnl = priceDiff * pos.volume * pos.leverage;
-  const roe = (pnl / (pos.openPrice * pos.volume / pos.leverage)) * 100;
-  const isProfit = pnl >= 0;
+// ─── Analytics helpers ────────────────────────────────────────────────────────
 
+function getSentiment(history) {
+  if (!history || history.length < 5) {
+    return { label: '◆ Neutral', color: 'var(--warn)', bg: 'var(--warn-bg)' };
+  }
+  const last = history.slice(-14);
+  let ups = 0;
+  for (let i = 1; i < last.length; i++) if (last[i] > last[i - 1]) ups++;
+  const ratio = ups / (last.length - 1);
+  if (ratio >= 0.62) return { label: '▲ Bullish', color: 'var(--green)', bg: 'var(--green-bg)' };
+  if (ratio <= 0.38) return { label: '▼ Bearish', color: 'var(--red)',   bg: 'var(--red-bg)' };
+  return { label: '◆ Neutral', color: 'var(--warn)', bg: 'var(--warn-bg)' };
+}
+
+function getVolatility(history, symbol) {
+  if (!history || history.length < 8) return { label: '● Low', color: 'var(--green)' };
+  const diffs = [];
+  for (let i = 1; i < history.length; i++) {
+    diffs.push(Math.abs((history[i] - history[i - 1]) / history[i - 1]));
+  }
+  const avg = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+  const base = SIM_VOL[symbol] || 0.0003;
+  const ratio = avg / base;
+  if (ratio >= 1.55) return { label: '⚡ High',   color: 'var(--red)' };
+  if (ratio >= 1.1)  return { label: '~ Medium', color: 'var(--warn)' };
+  return { label: '● Low', color: 'var(--green)' };
+}
+
+// ─── Signal Strength ──────────────────────────────────────────────────────────
+
+function SignalStrength({ direction, sentiment }) {
+  const bullish = sentiment.label.includes('Bullish');
+  const bearish = sentiment.label.includes('Bearish');
+  const aligned = (direction === 'buy' && bullish) || (direction === 'sell' && bearish);
+  const opposed  = (direction === 'buy' && bearish) || (direction === 'sell' && bullish);
+  const score = aligned ? 81 : opposed ? 26 : 54;
+  const label = score >= 70 ? 'Strong' : score >= 50 ? 'Moderate' : 'Weak';
+  const color = score >= 70 ? 'var(--green)' : score >= 50 ? 'var(--brand)' : 'var(--text-3)';
+  const barBg = score >= 70
+    ? 'linear-gradient(90deg, var(--green), #6ee7b7)'
+    : score >= 50
+      ? 'linear-gradient(90deg, var(--brand), var(--brand-light))'
+      : 'var(--text-4)';
   return (
-    <div style={{ animation: 'pnlCount 0.3s ease' }}>
-      <div className={`font-mono font-black text-sm ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
-        {isProfit ? '+' : ''}{formatCurrency(pnl)}
+    <div className="px-3 py-2.5 rounded-xl"
+      style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--text-3)' }}>
+          Signal Strength
+        </span>
+        <span className="text-xs font-black" style={{ color }}>{label}</span>
       </div>
-      <div className={`text-xs font-mono ${isProfit ? 'text-emerald-400/60' : 'text-red-400/60'}`}>
-        ROE {isProfit ? '+' : ''}{roe.toFixed(1)}%
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-0)' }}>
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${score}%`, background: barBg }} />
       </div>
     </div>
   );
 }
 
-function TradeRow({ pos, prices, onClose }) {
-  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
-  const isProfit = (() => {
-    const diff = pos.direction === 'buy' ? currentPrice - pos.openPrice : pos.openPrice - currentPrice;
-    return diff * pos.volume * pos.leverage >= 0;
-  })();
+// ─── Position Preview ─────────────────────────────────────────────────────────
+
+function PositionPreview({ direction, price, volume, leverage }) {
+  const vol = parseFloat(volume || 0);
+  const scenarios = [
+    { label: '+1%', pct: 0.01 },
+    { label: '+2%', pct: 0.02 },
+    { label: '-1%', pct: -0.01 },
+    { label: '-2%', pct: -0.02 },
+  ];
+  return (
+    <div className="rounded-xl overflow-hidden"
+      style={{ border: '1px solid var(--border-0)' }}>
+      <div className="px-3 py-2 flex items-center gap-1.5"
+        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-0)' }}>
+        <Target size={10} style={{ color: 'var(--text-3)' }} />
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>
+          P&L Scenarios
+        </span>
+      </div>
+      <div className="grid grid-cols-4">
+        {scenarios.map(({ label, pct }) => {
+          const pnl = (direction === 'buy' ? pct : -pct) * price * vol * leverage;
+          const isGain = pnl >= 0;
+          return (
+            <div key={label} className="px-2 py-2.5 text-center"
+              style={{ borderRight: '1px solid var(--border-0)' }}>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-4)' }}>{label}</div>
+              <div className="text-xs font-mono font-bold"
+                style={{ color: isGain ? 'var(--green)' : 'var(--red)' }}>
+                {isGain ? '+' : ''}{formatCurrency(pnl)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Position Card ────────────────────────────────────────────────────────────
+
+function PositionCard({ pos, prices, onClose }) {
+  const current = prices[pos.symbol] ?? pos.openPrice;
+  const diff = pos.direction === 'buy' ? current - pos.openPrice : pos.openPrice - current;
+  const pnl = diff * pos.volume * pos.leverage;
+  const roe = (pnl / ((pos.openPrice * pos.volume) / pos.leverage)) * 100;
+  const isProfit = pnl >= 0;
+  const asset = SIMPLE_TRADE_ASSETS.find(a => a.symbol === pos.symbol);
 
   return (
-    <div className="flex items-center gap-2 p-3 rounded-xl transition-all"
+    <div className="st-card-in rounded-xl p-4 transition-all duration-500"
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${isProfit ? 'rgba(5,150,105,0.15)' : 'rgba(212,67,51,0.15)'}`,
+        background: isProfit
+          ? 'linear-gradient(135deg, rgba(30,167,116,0.07), rgba(30,167,116,0.02))'
+          : 'linear-gradient(135deg, rgba(212,67,51,0.07), rgba(212,67,51,0.02))',
+        border: `1px solid ${isProfit ? 'rgba(30,167,116,0.2)' : 'rgba(212,67,51,0.2)'}`,
+        boxShadow: isProfit ? '0 0 24px rgba(30,167,116,0.06)' : '0 0 24px rgba(212,67,51,0.06)',
       }}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-white/80 text-sm font-semibold">{pos.symbol}</span>
-          <span className={`badge-${pos.direction === 'buy' ? 'green' : 'red'} text-xs`}>
-            {pos.direction.toUpperCase()}
-          </span>
-          <span className="badge-brand text-xs">{pos.leverage}x</span>
+      <div className="flex items-start gap-3">
+        {/* Left: asset + details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-lg leading-none">{asset?.icon}</span>
+            <span className="text-sm font-bold" style={{ color: 'var(--text-1)' }}>{pos.symbol}</span>
+            <span className="px-1.5 py-0.5 rounded text-xs font-black"
+              style={{
+                background: pos.direction === 'buy' ? 'rgba(30,167,116,0.18)' : 'rgba(212,67,51,0.18)',
+                color: pos.direction === 'buy' ? 'var(--green)' : 'var(--red)',
+              }}>
+              {pos.direction === 'buy' ? '▲ LONG' : '▼ SHORT'}
+            </span>
+            <span className="px-1.5 py-0.5 rounded text-xs font-black"
+              style={{ background: 'var(--brand-bg)', color: 'var(--brand-light)' }}>
+              {pos.leverage}x
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-0.5 text-xs">
+            {[
+              ['Entry', pos.openPrice.toFixed(pos.openPrice > 100 ? 2 : 4)],
+              ['Now',   current.toFixed(current > 100 ? 2 : 4)],
+              ['Vol',   pos.volume],
+              ['Size',  `$${formatCurrency(pos.openPrice * pos.volume)}`],
+            ].map(([k, v]) => (
+              <span key={k} style={{ color: 'var(--text-3)' }}>
+                {k} <span className="font-mono" style={{ color: 'var(--text-2)' }}>{v}</span>
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="text-white/30 text-xs mt-0.5">
-          Vol: {pos.volume} · Entry: {pos.openPrice.toFixed(pos.openPrice > 100 ? 2 : 4)}
+
+        {/* Right: P&L + close */}
+        <div className="flex items-start gap-2 flex-shrink-0">
+          <div className="st-pnl text-right">
+            <div className="font-mono font-black text-base"
+              style={{ color: isProfit ? 'var(--green)' : 'var(--red)' }}>
+              {isProfit ? '+' : ''}{formatCurrency(pnl)}
+            </div>
+            <div className="text-xs font-mono mt-0.5"
+              style={{ color: isProfit ? 'rgba(30,167,116,0.65)' : 'rgba(212,67,51,0.65)' }}>
+              {isProfit ? '+' : ''}{roe.toFixed(1)}% ROE
+            </div>
+          </div>
+          <button
+            onClick={() => onClose(pos.id)}
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-all flex-shrink-0 mt-0.5"
+            style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-3)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--red-bg)'; e.currentTarget.style.color = 'var(--red)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-3)'; }}>
+            <X size={13} />
+          </button>
         </div>
       </div>
-      <LivePnL pos={pos} prices={prices} />
-      <div className="text-right mr-1">
-        <div className="text-white/40 text-xs font-mono">
-          {currentPrice.toFixed(currentPrice > 100 ? 2 : 4)}
-        </div>
-      </div>
-      <button
-        onClick={() => onClose(pos.id)}
-        className="ml-1 w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-        style={{ background: 'rgba(255,255,255,0.05)' }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,67,51,0.2)'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-      >
-        <X size={13} className="text-white/50" />
-      </button>
     </div>
   );
 }
@@ -147,28 +307,37 @@ function TradeRow({ pos, prices, onClose }) {
 export default function SimpleTrade() {
   const { prices: realPrices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
 
-  // Local simulated prices — always alive, tick every 1-2 seconds
-  const [simPrices, setSimPrices] = useState(buildSimPrices);
+  // Simulated prices — self-scheduling ticks at 0.8–2s
+  const [simPrices, setSimPrices] = useState(initSimPrices);
   const tickRef = useRef(null);
+
+  // Price history per symbol (sparklines + analytics)
+  const histRef = useRef(Object.fromEntries(SIMPLE_TRADE_ASSETS.map(a => [a.symbol, [a.basePrice]])));
+
+  // Previous simulated prices for flash direction detection
+  const prevSimRef = useRef({});
 
   useEffect(() => {
     function tick() {
       setSimPrices(prev => {
         const next = { ...prev };
         SIMPLE_TRADE_ASSETS.forEach(({ symbol }) => {
-          const vol = SIM_VOLATILITY[symbol] || 0.0003;
-          const change = (Math.random() - 0.5) * 2 * vol;
-          next[symbol] = prev[symbol] * (1 + change);
+          const vol = SIM_VOL[symbol] || 0.0003;
+          next[symbol] = prev[symbol] * (1 + (Math.random() - 0.5) * 2 * vol);
+          const h = histRef.current[symbol] || [];
+          h.push(next[symbol]);
+          if (h.length > HISTORY_LEN) h.shift();
+          histRef.current[symbol] = h;
         });
         return next;
       });
-      tickRef.current = setTimeout(tick, 1000 + Math.random() * 1000);
+      tickRef.current = setTimeout(tick, 800 + Math.random() * 1200);
     }
-    tickRef.current = setTimeout(tick, 1000 + Math.random() * 1000);
+    tickRef.current = setTimeout(tick, 800 + Math.random() * 1200);
     return () => clearTimeout(tickRef.current);
   }, []);
 
-  // Merge: prefer real price when live, otherwise use simulated
+  // Effective prices — real when live, simulated otherwise
   const effectivePrices = {};
   SIMPLE_TRADE_ASSETS.forEach(({ symbol }) => {
     const status = priceStatuses?.[symbol];
@@ -177,14 +346,17 @@ export default function SimpleTrade() {
       : simPrices[symbol];
   });
 
+  // Trade state
   const [selectedAsset, setSelectedAsset] = useState(SIMPLE_TRADE_ASSETS[0]);
   const [direction, setDirection] = useState('buy');
   const [volume, setVolume] = useState('0.01');
   const [leverage, setLeverage] = useState(10);
   const [stopLoss, setStopLoss] = useState('');
   const [takeProfit, setTakeProfit] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState('');
   const [tradeFlash, setTradeFlash] = useState(false);
+  const [priceFlash, setPriceFlash] = useState(''); // 'up' | 'down' | ''
   const [metrics, setMetrics] = useState(getMetrics());
 
   useEffect(() => {
@@ -192,165 +364,209 @@ export default function SimpleTrade() {
     return () => clearInterval(t);
   }, [getMetrics]);
 
+  // Detect price direction for hero flash
+  useEffect(() => {
+    const sym = selectedAsset.symbol;
+    const cur = simPrices[sym];
+    const prev = prevSimRef.current[sym];
+    if (prev !== undefined && cur !== undefined && cur !== prev) {
+      const dir = cur > prev ? 'up' : 'down';
+      setPriceFlash(dir);
+      const t = setTimeout(() => setPriceFlash(''), 700);
+      prevSimRef.current[sym] = cur;
+      return () => clearTimeout(t);
+    }
+    prevSimRef.current[sym] = cur;
+  }, [simPrices, selectedAsset.symbol]);
+
   const currentPrice = effectivePrices[selectedAsset.symbol] ?? selectedAsset.basePrice;
-  const priceChange = ((currentPrice - selectedAsset.basePrice) / selectedAsset.basePrice) * 100;
+  const priceChange  = ((currentPrice - selectedAsset.basePrice) / selectedAsset.basePrice) * 100;
   const isUp = priceChange >= 0;
 
+  const history    = histRef.current[selectedAsset.symbol] || [];
+  const sentiment  = getSentiment(history);
+  const volatility = getVolatility(history, selectedAsset.symbol);
+
   const myPositions = positions.filter(p => p.module === 'simple');
+  const vol         = parseFloat(volume || 0);
+  const notional    = vol * currentPrice * leverage;
+  const margin      = vol * currentPrice / leverage;
+  const priceDecimals = currentPrice >= 1000 ? 2 : currentPrice >= 1 ? 4 : 5;
 
   const handleTrade = useCallback(() => {
-    const vol = parseFloat(volume);
-    if (!vol || vol <= 0) { setError('Invalid volume'); return; }
-    if (vol > wallet.usdt / currentPrice) { setError('Insufficient balance'); return; }
-
+    const v = parseFloat(volume);
+    if (!v || v <= 0) { setError('Enter a valid volume'); return; }
+    const req = currentPrice * v / leverage;
+    if (req > metrics.freeMargin) { setError('Insufficient free margin'); return; }
     openPosition({
       symbol: selectedAsset.symbol,
       name: selectedAsset.name,
       openPrice: currentPrice,
-      volume: vol,
+      volume: v,
       leverage,
       direction,
-      stopLoss: stopLoss ? parseFloat(stopLoss) : null,
+      stopLoss:   stopLoss   ? parseFloat(stopLoss)   : null,
       takeProfit: takeProfit ? parseFloat(takeProfit) : null,
       module: 'simple',
     });
-
     setError('');
     setTradeFlash(true);
-    setTimeout(() => setTradeFlash(false), 800);
-  }, [volume, wallet.usdt, currentPrice, openPosition, selectedAsset, leverage, direction, stopLoss, takeProfit]);
-
-  const notionalValue = (parseFloat(volume || 0) * currentPrice * leverage).toFixed(2);
+    setTimeout(() => setTradeFlash(false), 900);
+  }, [volume, currentPrice, leverage, metrics.freeMargin, openPosition, selectedAsset, direction, stopLoss, takeProfit]);
 
   return (
     <div className="flex-1 overflow-y-auto animate-fade-in"
-      style={{
-        background: 'radial-gradient(ellipse at top, rgba(100,0,0,0.06) 0%, transparent 60%), #0a0a0a',
-      }}>
+      style={{ background: 'radial-gradient(ellipse at 25% 0%, rgba(59,130,246,0.05) 0%, transparent 55%), var(--bg-base)' }}>
 
-      {/* Price display bar */}
-      <div className="px-5 pt-4 pb-2">
-        <div className="flex items-center gap-4 mb-4 p-4 rounded-xl"
-          style={{
-            background: tradeFlash ? 'rgba(59,130,246,0.08)' : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${tradeFlash ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.08)'}`,
-            transition: 'all 0.4s ease',
-          }}>
-          <div className="text-3xl select-none">{selectedAsset.icon}</div>
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="text-white/40 text-xs uppercase tracking-wider">{selectedAsset.name}</div>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            </div>
-            <div className="flex items-end gap-2 mt-0.5">
-              <span className="text-3xl font-bold font-mono text-white"
-                style={{ animation: `${isUp ? 'priceBlinkUp' : 'priceBlinkDown'} 1.5s ease-in-out infinite` }}>
-                {currentPrice >= 1000
-                  ? currentPrice.toFixed(2)
-                  : currentPrice >= 1
-                    ? currentPrice.toFixed(4)
-                    : currentPrice.toFixed(5)}
-              </span>
-              <span className={`text-sm font-medium mb-1 flex items-center gap-0.5 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                {isUp ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                {Math.abs(priceChange).toFixed(3)}%
-              </span>
-            </div>
-          </div>
-          <div className="ml-auto text-right hidden sm:block">
-            <div className="text-white/30 text-xs">Free Margin</div>
-            <div className="font-mono font-bold text-blue-400">${formatCurrency(metrics.freeMargin)}</div>
-          </div>
-        </div>
-
-        {/* Asset selector */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
+      {/* ── Asset Selector Strip ── */}
+      <div className="px-4 pt-4">
+        <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
           {SIMPLE_TRADE_ASSETS.map(asset => (
-            <AssetButton
+            <AssetCard
               key={asset.symbol}
               asset={asset}
               selected={selectedAsset.symbol === asset.symbol}
               price={effectivePrices[asset.symbol] ?? asset.basePrice}
+              history={histRef.current[asset.symbol] || []}
               onChange={setSelectedAsset}
             />
           ))}
         </div>
       </div>
 
-      <div className="px-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* ── Main Layout ── */}
+      <div className="px-4 pt-3 pb-6 grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-        {/* Trade Panel */}
-        <div className="lg:col-span-1">
-          <div className="rounded-xl p-5 space-y-4"
+        {/* ── Trade Panel ── */}
+        <div className="lg:col-span-2 space-y-3">
+
+          {/* Price Hero */}
+          <div className="rounded-xl p-4 relative overflow-hidden transition-all duration-400"
             style={{
-              background: 'linear-gradient(145deg, rgba(22,12,10,0.99), rgba(14,10,10,0.99))',
-              border: '1px solid rgba(200,0,0,0.14)',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
+              background: tradeFlash
+                ? 'linear-gradient(135deg, rgba(59,130,246,0.11), rgba(124,58,237,0.06))'
+                : 'var(--bg-card)',
+              border: `1px solid ${tradeFlash ? 'rgba(59,130,246,0.38)' : 'var(--border-0)'}`,
+              boxShadow: tradeFlash ? '0 0 40px rgba(59,130,246,0.18)' : 'none',
             }}>
-
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500" style={{ animation: 'pulse 2s infinite' }} />
-              <span className="text-white/50 text-xs font-bold tracking-wider uppercase">Place Order</span>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl leading-none">{selectedAsset.icon}</span>
+                  <div>
+                    <div className="text-xs font-black tracking-widest" style={{ color: 'var(--text-3)' }}>
+                      {selectedAsset.name.toUpperCase()}
+                    </div>
+                    <div className="text-xs" style={{ color: 'var(--text-4)' }}>{selectedAsset.symbol}</div>
+                  </div>
+                  <div className="w-1.5 h-1.5 rounded-full ml-1" style={{ background: 'var(--green)', animation: 'pulse 2s infinite' }} />
+                </div>
+                <div
+                  className={`font-black font-mono text-3xl leading-none ${priceFlash === 'up' ? 'st-price-up' : priceFlash === 'down' ? 'st-price-down' : ''}`}
+                  style={{ color: priceFlash ? undefined : 'var(--text-1)' }}>
+                  {currentPrice.toFixed(priceDecimals)}
+                </div>
+                <div className="flex items-center gap-2.5 mt-1.5">
+                  <span className="text-sm font-bold"
+                    style={{ color: isUp ? 'var(--green)' : 'var(--red)' }}>
+                    {isUp ? '▲' : '▼'} {Math.abs(priceChange).toFixed(3)}%
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--text-4)' }}>
+                    spread {selectedAsset.spread}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <div className="text-xs mb-0.5" style={{ color: 'var(--text-3)' }}>Free Margin</div>
+                <div className="font-mono font-bold text-sm" style={{ color: 'var(--brand-light)' }}>
+                  ${formatCurrency(metrics.freeMargin)}
+                </div>
+              </div>
             </div>
 
-            {/* Cinematic BUY/SELL buttons */}
+            {/* Market badges */}
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: sentiment.bg, color: sentiment.color }}>
+                {sentiment.label}
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: 'var(--bg-surface)', color: volatility.color }}>
+                {volatility.label} Vol
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-xs"
+                style={{ background: 'var(--bg-surface)', color: 'var(--text-3)' }}>
+                {priceStatuses?.[selectedAsset.symbol] === 'live' ? '🔴 Live feed' : '⚡ Simulated'}
+              </span>
+            </div>
+          </div>
+
+          {/* Trade Form */}
+          <div className="rounded-xl p-4 space-y-4"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-0)',
+              boxShadow: '0 4px 32px rgba(0,0,0,0.28)',
+            }}>
+
+            {/* Direction toggle */}
             <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setDirection('buy')}
-                className="py-4 rounded-xl font-black text-sm transition-all duration-200 relative overflow-hidden"
-                style={{
-                  background: direction === 'buy'
-                    ? 'linear-gradient(135deg, #064e3b 0%, #059669 60%, #1ea774 100%)'
-                    : 'rgba(5,150,105,0.07)',
-                  border: `1px solid ${direction === 'buy' ? '#1ea774' : 'rgba(5,150,105,0.2)'}`,
-                  color: direction === 'buy' ? '#fff' : '#059669',
-                  animation: direction === 'buy' ? 'buyGlow 2.5s ease-in-out infinite' : 'none',
-                  fontSize: '0.875rem',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                ▲ BUY
-                <div className="text-xs font-normal opacity-70 mt-0.5">LONG</div>
-              </button>
-              <button
-                onClick={() => setDirection('sell')}
-                className="py-4 rounded-xl font-black text-sm transition-all duration-200 relative overflow-hidden"
-                style={{
-                  background: direction === 'sell'
-                    ? 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 60%, #d44333 100%)'
-                    : 'rgba(212,67,51,0.07)',
-                  border: `1px solid ${direction === 'sell' ? '#d44333' : 'rgba(212,67,51,0.2)'}`,
-                  color: direction === 'sell' ? '#fff' : '#dc2626',
-                  animation: direction === 'sell' ? 'sellGlow 2.5s ease-in-out infinite' : 'none',
-                  fontSize: '0.875rem',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                ▼ SELL
-                <div className="text-xs font-normal opacity-70 mt-0.5">SHORT</div>
-              </button>
+              {[
+                {
+                  d: 'buy', label: '▲ BUY', sub: 'LONG',
+                  activeBg: 'linear-gradient(135deg, #054a2e, #059669 55%, #1ea774)',
+                  activeBorder: '#1ea774',
+                  idleColor: 'var(--green)',
+                  anim: 'st-buy-glow 3s ease-in-out infinite',
+                },
+                {
+                  d: 'sell', label: '▼ SELL', sub: 'SHORT',
+                  activeBg: 'linear-gradient(135deg, #7f1d1d, #dc2626 55%, #d44333)',
+                  activeBorder: '#d44333',
+                  idleColor: 'var(--red)',
+                  anim: 'st-sell-glow 3s ease-in-out infinite',
+                },
+              ].map(({ d, label, sub, activeBg, activeBorder, idleColor, anim }) => (
+                <button key={d}
+                  onClick={() => setDirection(d)}
+                  className="py-4 rounded-xl font-black text-sm tracking-widest transition-all duration-200"
+                  style={{
+                    background: direction === d ? activeBg : `${idleColor}11`,
+                    border: `1px solid ${direction === d ? activeBorder : `${idleColor}33`}`,
+                    color: direction === d ? '#fff' : idleColor,
+                    animation: direction === d ? anim : 'none',
+                  }}>
+                  {label}
+                  <div className="text-xs font-normal opacity-75 mt-0.5">{sub}</div>
+                </button>
+              ))}
             </div>
 
             {/* Volume */}
             <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5 block">
-                Volume (Lots)
+              <label className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold tracking-wider uppercase"
+                  style={{ color: 'var(--text-3)' }}>Volume (Lots)</span>
+                <span className="text-xs font-mono"
+                  style={{ color: 'var(--text-4)' }}>
+                  ≈ ${formatCurrency(vol * currentPrice)}
+                </span>
               </label>
               <input
                 type="number"
                 value={volume}
                 onChange={e => setVolume(e.target.value)}
                 step="0.01" min="0.01"
-                className="input-dark font-mono"
+                className="input-dark font-mono w-full"
               />
               <div className="grid grid-cols-4 gap-1.5 mt-2">
                 {[0.01, 0.1, 0.5, 1].map(v => (
-                  <button key={v} onClick={() => setVolume(v.toString())}
+                  <button key={v} onClick={() => setVolume(String(v))}
                     className="py-1.5 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: volume === v.toString() ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${volume === v.toString() ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                      color: volume === v.toString() ? '#3B82F6' : 'rgba(255,255,255,0.4)',
+                      background: volume === String(v) ? 'var(--brand-bg)' : 'var(--bg-surface)',
+                      border: `1px solid ${volume === String(v) ? 'rgba(59,130,246,0.35)' : 'var(--border-0)'}`,
+                      color: volume === String(v) ? 'var(--brand)' : 'var(--text-3)',
                     }}>
                     {v}
                   </button>
@@ -360,18 +576,23 @@ export default function SimpleTrade() {
 
             {/* Leverage */}
             <div>
-              <label className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5 block">
-                Leverage: <span className="text-blue-400 font-black">{leverage}x</span>
+              <label className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold tracking-wider uppercase"
+                  style={{ color: 'var(--text-3)' }}>Leverage</span>
+                <span className="font-mono font-black text-sm"
+                  style={{ color: 'var(--brand-light)' }}>{leverage}x</span>
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {SIMPLE_LEVERAGE_OPTIONS.map(lev => (
                   <button key={lev} onClick={() => setLeverage(lev)}
                     className="py-2 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: leverage === lev ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${leverage === lev ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.06)'}`,
-                      color: leverage === lev ? '#3B82F6' : 'rgba(255,255,255,0.4)',
-                      boxShadow: leverage === lev ? '0 0 10px rgba(59,130,246,0.15)' : 'none',
+                      background: leverage === lev
+                        ? 'linear-gradient(135deg, var(--brand-bg), rgba(124,58,237,0.1))'
+                        : 'var(--bg-surface)',
+                      border: `1px solid ${leverage === lev ? 'rgba(59,130,246,0.4)' : 'var(--border-0)'}`,
+                      color: leverage === lev ? 'var(--brand-light)' : 'var(--text-3)',
+                      boxShadow: leverage === lev ? '0 0 14px rgba(59,130,246,0.18)' : 'none',
                     }}>
                     {lev}x
                   </button>
@@ -379,108 +600,149 @@ export default function SimpleTrade() {
               </div>
             </div>
 
-            {/* Notional value */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-lg"
-              style={{ background: 'rgba(59,130,246,0.04)', border: '1px solid rgba(59,130,246,0.08)' }}>
-              <span className="text-white/40 text-xs">Position Value</span>
-              <span className="font-mono text-blue-400 font-bold text-sm">${formatCurrency(parseFloat(notionalValue))}</span>
-            </div>
+            {/* Signal strength */}
+            <SignalStrength direction={direction} sentiment={sentiment} />
 
-            {/* Stop Loss & Take Profit */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-red-400/60 text-xs font-semibold mb-1.5 block">Stop Loss</label>
-                <input type="number" value={stopLoss} onChange={e => setStopLoss(e.target.value)}
-                  placeholder="Optional" className="input-dark font-mono text-sm"
-                  style={{ borderColor: stopLoss ? 'rgba(239,68,68,0.3)' : undefined }} />
-              </div>
-              <div>
-                <label className="text-emerald-400/60 text-xs font-semibold mb-1.5 block">Take Profit</label>
-                <input type="number" value={takeProfit} onChange={e => setTakeProfit(e.target.value)}
-                  placeholder="Optional" className="input-dark font-mono text-sm"
-                  style={{ borderColor: takeProfit ? 'rgba(16,185,129,0.3)' : undefined }} />
-              </div>
+            {/* P&L Scenarios */}
+            <PositionPreview
+              direction={direction}
+              price={currentPrice}
+              volume={volume}
+              leverage={leverage}
+            />
+
+            {/* Advanced SL/TP */}
+            <div>
+              <button
+                onClick={() => setShowAdvanced(v => !v)}
+                className="w-full flex items-center justify-between text-xs py-1 transition-colors"
+                style={{ color: showAdvanced ? 'var(--brand)' : 'var(--text-3)' }}>
+                <span className="font-semibold uppercase tracking-wider">Stop Loss / Take Profit</span>
+                <span style={{ opacity: 0.7 }}>{showAdvanced ? '▲ Hide' : '▼ Show'}</span>
+              </button>
+              {showAdvanced && (
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block"
+                      style={{ color: 'rgba(212,67,51,0.75)' }}>Stop Loss</label>
+                    <input type="number" value={stopLoss} onChange={e => setStopLoss(e.target.value)}
+                      placeholder="Optional" className="input-dark font-mono text-sm w-full"
+                      style={{ borderColor: stopLoss ? 'rgba(212,67,51,0.35)' : undefined }} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block"
+                      style={{ color: 'rgba(30,167,116,0.75)' }}>Take Profit</label>
+                    <input type="number" value={takeProfit} onChange={e => setTakeProfit(e.target.value)}
+                      placeholder="Optional" className="input-dark font-mono text-sm w-full"
+                      style={{ borderColor: takeProfit ? 'rgba(30,167,116,0.35)' : undefined }} />
+                  </div>
+                </div>
+              )}
             </div>
 
             {error && (
               <div className="flex items-center gap-2 p-2.5 rounded-lg text-xs"
-                style={{ background: 'rgba(212,67,51,0.1)', border: '1px solid rgba(212,67,51,0.2)' }}>
-                <AlertCircle size={12} className="text-red-400 flex-shrink-0" />
-                <span className="text-red-400">{error}</span>
+                style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.22)' }}>
+                <AlertCircle size={12} style={{ color: 'var(--red)', flexShrink: 0 }} />
+                <span style={{ color: 'var(--red)' }}>{error}</span>
               </div>
             )}
 
-            {/* Submit button */}
+            {/* Submit CTA */}
             <button
               onClick={handleTrade}
-              className={`w-full py-4 rounded-xl font-black text-base tracking-widest transition-all relative overflow-hidden ${direction === 'buy' ? 'btn-buy' : 'btn-sell'}`}
-              style={{ fontSize: '1rem', letterSpacing: '0.1em' }}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <Zap size={16} />
-                {direction === 'buy' ? '▲ OPEN LONG' : '▼ OPEN SHORT'} {selectedAsset.symbol}
-              </div>
+              className={`w-full py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-2 transition-all duration-200 ${tradeFlash ? 'st-pop' : ''}`}
+              style={{
+                background: direction === 'buy'
+                  ? 'linear-gradient(135deg, #054a2e, #059669 55%, #1ea774)'
+                  : 'linear-gradient(135deg, #7f1d1d, #dc2626 55%, #d44333)',
+                color: '#fff',
+                boxShadow: direction === 'buy'
+                  ? '0 4px 24px rgba(30,167,116,0.38)'
+                  : '0 4px 24px rgba(212,67,51,0.38)',
+                border: 'none',
+              }}>
+              <Zap size={15} />
+              {direction === 'buy' ? '▲ OPEN LONG' : '▼ OPEN SHORT'} {selectedAsset.symbol}
             </button>
 
-            {/* Margin info */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <div className="text-white/30">Required Margin</div>
-                <div className="text-white/70 font-mono font-bold">${formatCurrency((currentPrice * parseFloat(volume || 0)) / leverage)}</div>
-              </div>
-              <div className="p-2 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <div className="text-white/30">Free Margin</div>
-                <div className="text-white/70 font-mono font-bold">${formatCurrency(metrics.freeMargin)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Open Positions */}
-        <div className="lg:col-span-2">
-          <div className="card-premium rounded-xl p-5"
-            style={{
-              background: 'linear-gradient(145deg, rgba(14,10,10,0.99), rgba(12,10,10,0.99))',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-white/70 text-sm font-bold uppercase tracking-wider">Open Positions</div>
-              <span className="badge-brand">{myPositions.length}</span>
-            </div>
-
-            {myPositions.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-5xl mb-3 opacity-20">📊</div>
-                <div className="text-white/20 text-sm">No open positions</div>
-                <div className="text-white/10 text-xs mt-1">Place your first trade using the panel on the left</div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {myPositions.map(pos => (
-                  <TradeRow key={pos.id} pos={pos} prices={effectivePrices} onClose={closePosition} />
-                ))}
-              </div>
-            )}
-
-            {/* Account summary */}
-            <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-white/5">
+            {/* Margin summary */}
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'text-white' },
-                { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                { label: 'Margin', value: `$${formatCurrency(metrics.usedMargin)}`, color: 'text-blue-400' },
-                { label: 'Free', value: `$${formatCurrency(metrics.freeMargin)}`, color: 'text-white' },
-              ].map(stat => (
-                <div key={stat.label} className="text-center p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <div className="text-white/30 text-xs">{stat.label}</div>
-                  <div className={`font-mono font-bold text-xs mt-0.5 ${stat.color}`}>{stat.value}</div>
+                { label: 'Required Margin', value: `$${formatCurrency(margin)}` },
+                { label: 'Position Value',  value: `$${formatCurrency(notional)}` },
+              ].map(s => (
+                <div key={s.label} className="px-2.5 py-2 rounded-lg text-center"
+                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+                  <div className="text-xs" style={{ color: 'var(--text-4)' }}>{s.label}</div>
+                  <div className="font-mono font-bold text-xs mt-0.5"
+                    style={{ color: 'var(--text-2)' }}>{s.value}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="h-4" />
+        {/* ── Positions & Account Panel ── */}
+        <div className="lg:col-span-3 space-y-3">
+
+          {/* Account stats */}
+          <div className="rounded-xl p-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-0)' }}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {[
+                { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'var(--text-1)' },
+                { label: 'Equity',  value: `$${formatCurrency(metrics.equity)}`,
+                  color: metrics.equity >= metrics.balance ? 'var(--green)' : 'var(--red)' },
+                { label: 'Used Margin', value: `$${formatCurrency(metrics.usedMargin)}`, color: 'var(--brand-light)' },
+                { label: "Today's P&L",
+                  value: `${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`,
+                  color: metrics.pnl >= 0 ? 'var(--green)' : 'var(--red)' },
+              ].map(stat => (
+                <div key={stat.label} className="text-center p-2.5 rounded-xl"
+                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+                  <div className="text-xs mb-1" style={{ color: 'var(--text-3)' }}>{stat.label}</div>
+                  <div className="font-mono font-bold text-sm" style={{ color: stat.color }}>{stat.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Open Positions */}
+          <div className="rounded-xl p-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-0)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Activity size={14} style={{ color: 'var(--brand)' }} />
+                <span className="text-sm font-bold tracking-wider uppercase"
+                  style={{ color: 'var(--text-1)' }}>Open Positions</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-xs font-black"
+                style={{ background: 'var(--brand-bg)', color: 'var(--brand)' }}>
+                {myPositions.length}
+              </span>
+            </div>
+
+            {myPositions.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-4xl mb-4" style={{ opacity: 0.18 }}>📈</div>
+                <div className="text-sm font-medium mb-1" style={{ color: 'var(--text-3)' }}>
+                  No open positions
+                </div>
+                <div className="text-xs" style={{ color: 'var(--text-4)' }}>
+                  Select an asset and open your first trade
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {myPositions.map(pos => (
+                  <PositionCard key={pos.id} pos={pos} prices={effectivePrices} onClose={closePosition} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
