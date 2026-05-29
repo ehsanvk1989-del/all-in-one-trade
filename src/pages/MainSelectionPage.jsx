@@ -7,53 +7,29 @@ const PLATFORMS = [
   {
     id: 'simple',
     title: 'Simple Trade',
-    subtitle: 'PREMIUM TRADING',
-    description: 'Experience the thrill of precision trading with a clean, intuitive interface. Place trades on gold, oil, forex, and crypto with luxury-grade execution.',
+    subtitle: 'MULTI-ASSET TRADING',
+    description: 'Trade gold, oil, forex pairs, and crypto with a clean execution interface. Fixed spread pricing with 1x–20x leverage across 6 premium instruments.',
     icon: Zap,
     features: ['Gold & Commodities', 'Crypto Assets', 'Forex Pairs', '1x–20x Leverage'],
-    accentColor: '#e63946',
-    accentFrom: '#7f1d1d',
-    accentTo: '#e63946',
-    glowColor: 'rgba(230,57,70,0.15)',
-    borderColor: 'rgba(230,57,70,0.25)',
     tag: 'MOST POPULAR',
-    tagBg: 'rgba(230,57,70,0.15)',
-    tagColor: '#e63946',
-    bgPattern: 'radial-gradient(ellipse at top right, rgba(230,57,70,0.08) 0%, transparent 60%)',
   },
   {
     id: 'crypto',
     title: 'Crypto Futures',
     subtitle: 'FUTURES TERMINAL',
-    description: 'Professional crypto futures trading. BTC, ETH, SOL, DOGE with advanced order book, real-time depth, and up to 100x leverage.',
+    description: 'Professional crypto futures with live order book, real-time depth chart, and up to 100x leverage. BTC, ETH, SOL, DOGE perpetual contracts.',
     icon: BarChart3,
-    features: ['BTC/ETH/SOL/DOGE', 'Up to 100x Leverage', 'Order Book & Depth', 'Long & Short'],
-    accentColor: '#4361ee',
-    accentFrom: '#1e3a8a',
-    accentTo: '#4361ee',
-    glowColor: 'rgba(67,97,238,0.15)',
-    borderColor: 'rgba(67,97,238,0.25)',
+    features: ['BTC / ETH / SOL / DOGE', 'Up to 100x Leverage', 'Live Order Book', 'Long & Short'],
     tag: 'ADVANCED',
-    tagBg: 'rgba(67,97,238,0.15)',
-    tagColor: '#4361ee',
-    bgPattern: 'radial-gradient(ellipse at top right, rgba(67,97,238,0.08) 0%, transparent 60%)',
   },
   {
     id: 'forex',
     title: 'Forex & Commodities',
     subtitle: 'PROFESSIONAL',
-    description: 'Institutional-grade forex and commodities trading. XAU/USD, EUR/USD, GBP/USD and more with TradingView-inspired charts.',
+    description: 'Institutional-grade forex and commodities with embedded TradingView charts. XAU/USD, EUR/USD, GBP/USD and WTI/USD on a pro terminal.',
     icon: LineChart,
-    features: ['5 Major Pairs', 'Gold & Oil', 'Advanced Charts', 'Pro Order Panel'],
-    accentColor: '#06d6a0',
-    accentFrom: '#065f46',
-    accentTo: '#06d6a0',
-    glowColor: 'rgba(6,214,160,0.15)',
-    borderColor: 'rgba(6,214,160,0.25)',
+    features: ['5 Major Pairs', 'Gold & Oil', 'TradingView Charts', 'Pro Order Panel'],
     tag: 'INSTITUTIONAL',
-    tagBg: 'rgba(6,214,160,0.15)',
-    tagColor: '#06d6a0',
-    bgPattern: 'radial-gradient(ellipse at top right, rgba(6,214,160,0.08) 0%, transparent 60%)',
   },
 ];
 
@@ -63,143 +39,122 @@ function PlatformCard({ platform, onEnter, index }) {
 
   return (
     <div
-      className="relative flex flex-col rounded-2xl overflow-hidden cursor-pointer animate-fade-in"
+      className="relative flex flex-col rounded-xl overflow-hidden cursor-pointer animate-fade-in"
       style={{
-        animationDelay: `${index * 0.15}s`,
-        background: 'linear-gradient(145deg, rgba(22,22,22,0.98), rgba(14,14,14,0.98))',
-        border: `1px solid ${hovered ? platform.borderColor : 'rgba(255,255,255,0.06)'}`,
-        boxShadow: hovered
-          ? `0 20px 60px rgba(0,0,0,0.8), 0 0 40px ${platform.glowColor}`
-          : '0 4px 30px rgba(0,0,0,0.5)',
-        transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
-        transform: hovered ? 'translateY(-8px) scale(1.01)' : 'translateY(0) scale(1)',
+        animationDelay: `${index * 0.12}s`,
+        background: 'var(--bg-card)',
+        border: `1px solid ${hovered ? 'rgba(201,168,76,0.25)' : 'var(--border-0)'}`,
+        boxShadow: hovered ? '0 12px 40px rgba(0,0,0,0.5)' : '0 2px 12px rgba(0,0,0,0.3)',
+        transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => onEnter(platform.id)}
     >
-      {/* Background pattern */}
-      <div className="absolute inset-0" style={{ background: platform.bgPattern }} />
-
       {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${platform.accentColor}, transparent)`, opacity: hovered ? 1 : 0.3 }} />
+      <div className="h-px w-full"
+        style={{ background: hovered ? 'linear-gradient(90deg, transparent, var(--gold), transparent)' : 'transparent', transition: 'background 0.3s' }} />
 
-      {/* Tag */}
-      <div className="absolute top-4 right-4">
-        <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider"
-          style={{ background: platform.tagBg, color: platform.tagColor }}>
-          {platform.tag}
-        </span>
-      </div>
-
-      <div className="relative z-10 p-7 flex flex-col flex-1">
-        {/* Icon */}
-        <div className="mb-6">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{
-              background: `linear-gradient(135deg, ${platform.accentFrom}, ${platform.accentTo})`,
-              boxShadow: `0 0 30px ${platform.glowColor}`,
-            }}>
-            <Icon size={26} className="text-white" />
+      <div className="p-6 flex flex-col flex-1">
+        {/* Header row */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+            style={{ background: hovered ? 'var(--gold-bg)' : 'var(--bg-surface)', border: '1px solid var(--border-1)', transition: 'background 0.3s' }}>
+            <Icon size={20} style={{ color: hovered ? 'var(--gold-light)' : 'var(--text-2)', transition: 'color 0.3s' }} />
           </div>
-          <div className="text-xs font-bold tracking-[0.15em] mb-1" style={{ color: platform.accentColor }}>
+          <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider"
+            style={{ background: 'var(--gold-bg2)', color: 'var(--gold)' }}>
+            {platform.tag}
+          </span>
+        </div>
+
+        {/* Title block */}
+        <div className="mb-4">
+          <div className="text-xs font-semibold tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>
             {platform.subtitle}
           </div>
-          <h3 className="text-2xl font-bold text-white">{platform.title}</h3>
+          <h3 className="text-lg font-bold" style={{ color: 'var(--text-1)' }}>{platform.title}</h3>
         </div>
 
         {/* Description */}
-        <p className="text-white/50 text-sm leading-relaxed mb-6 flex-1">
+        <p className="text-sm leading-relaxed mb-5 flex-1" style={{ color: 'var(--text-2)' }}>
           {platform.description}
         </p>
 
         {/* Features */}
-        <div className="grid grid-cols-2 gap-2 mb-7">
+        <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 mb-6">
           {platform.features.map(feature => (
             <div key={feature} className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: platform.accentColor }} />
-              <span className="text-white/50 text-xs">{feature}</span>
+              <div className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: 'var(--gold)' }} />
+              <span className="text-xs" style={{ color: 'var(--text-3)' }}>{feature}</span>
             </div>
           ))}
         </div>
 
-        {/* Enter button */}
+        {/* CTA */}
         <button
-          className="w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300"
+          className="w-full py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200"
           style={{
-            background: hovered
-              ? `linear-gradient(135deg, ${platform.accentFrom}, ${platform.accentTo})`
-              : 'rgba(255,255,255,0.05)',
-            color: hovered ? '#fff' : platform.accentColor,
-            border: `1px solid ${platform.borderColor}`,
-            boxShadow: hovered ? `0 0 20px ${platform.glowColor}` : 'none',
+            background: hovered ? 'linear-gradient(135deg, var(--gold-dark), var(--gold))' : 'var(--bg-surface)',
+            color: hovered ? '#0c0d13' : 'var(--gold)',
+            border: '1px solid rgba(201,168,76,0.2)',
           }}
         >
           <span>Enter {platform.title}</span>
-          <ArrowRight size={16} className={`transition-transform duration-300 ${hovered ? 'translate-x-1' : ''}`} />
+          <ArrowRight size={14} className={`transition-transform duration-200 ${hovered ? 'translate-x-0.5' : ''}`} />
         </button>
       </div>
-
-      {/* Bottom glow */}
-      {hovered && (
-        <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-          style={{
-            background: `linear-gradient(to top, ${platform.glowColor}, transparent)`,
-          }} />
-      )}
     </div>
   );
 }
 
 export default function MainSelectionPage() {
-  const { setCurrentPage, user, wallet, getMetrics } = useApp();
+  const { setCurrentPage, user, getMetrics } = useApp();
   const metrics = getMetrics();
 
   return (
     <div className="flex-1 overflow-y-auto">
-      {/* Hero Section */}
-      <div className="relative px-6 pt-8 pb-6">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-5"
-            style={{ background: 'radial-gradient(circle, #ffd700, transparent)' }} />
-        </div>
+      <div className="px-6 pt-7 pb-6">
 
-        <div className="relative z-10 text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4"
-            style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.15)' }}>
-            <span className="text-yellow-400 text-xs font-semibold tracking-wider">CHOOSE YOUR MARKET</span>
+        {/* Page header */}
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-3"
+            style={{ background: 'var(--gold-bg2)', border: '1px solid rgba(201,168,76,0.15)' }}>
+            <span className="text-xs font-semibold tracking-wider" style={{ color: 'var(--gold)' }}>CHOOSE YOUR MARKET</span>
           </div>
-
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+          <h1 className="text-2xl font-bold mb-1.5" style={{ color: 'var(--text-1)' }}>
             Welcome back,{' '}
             <span className="text-gradient-gold capitalize">
               {user?.name || 'Trader'}
             </span>
           </h1>
-          <p className="text-white/40 text-base max-w-xl mx-auto">
-            Select your trading module and start executing premium trades across global markets
+          <p className="text-sm" style={{ color: 'var(--text-3)' }}>
+            Select a trading module to access global markets
           </p>
         </div>
 
-        {/* Quick stats row */}
-        <div className="flex justify-center gap-6 mb-10 flex-wrap">
+        {/* Quick metrics */}
+        <div className="flex items-center gap-6 mb-8 flex-wrap">
           {[
-            { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'text-white' },
-            { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: 'text-white' },
-            { label: 'Open Trades', value: metrics.openPositions, color: 'text-yellow-400' },
-            { label: "Today's P&L", value: `${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`, color: metrics.pnl >= 0 ? 'text-emerald-400' : 'text-red-400' },
+            { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, highlight: false },
+            { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, highlight: false },
+            { label: 'Open Trades', value: String(metrics.openPositions), highlight: true },
+            { label: "Today's P&L", value: `${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`, highlight: false, pnl: metrics.pnl },
           ].map(stat => (
-            <div key={stat.label} className="text-center">
-              <div className={`font-bold text-lg font-mono ${stat.color}`}>{stat.value}</div>
-              <div className="text-white/30 text-xs">{stat.label}</div>
+            <div key={stat.label} className="flex flex-col gap-0.5">
+              <div className="font-mono font-bold text-base"
+                style={{ color: stat.pnl !== undefined ? (stat.pnl >= 0 ? 'var(--green)' : 'var(--red)') : stat.highlight ? 'var(--gold-light)' : 'var(--text-1)' }}>
+                {stat.value}
+              </div>
+              <div className="text-xs" style={{ color: 'var(--text-3)' }}>{stat.label}</div>
             </div>
           ))}
+          <div className="w-px h-8 hidden sm:block" style={{ background: 'var(--border-1)' }} />
         </div>
 
         {/* Platform Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mb-8">
           {PLATFORMS.map((platform, idx) => (
             <PlatformCard
               key={platform.id}
@@ -209,47 +164,48 @@ export default function MainSelectionPage() {
             />
           ))}
         </div>
-      </div>
 
-      {/* Quick Access Bar */}
-      <div className="px-6 pb-6 max-w-5xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: TrendingUp, desc: 'Overview & analytics' },
-            { id: 'wallet', label: 'Wallet', icon: Shield, desc: 'Funds & deposits' },
-            { id: 'positions', label: 'Positions', icon: Globe, desc: 'Open trades' },
-            { id: 'history', label: 'History', icon: BarChart3, desc: 'Past trades' },
-          ].map(item => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setCurrentPage(item.id)}
-                className="flex items-center gap-3 p-3.5 rounded-xl transition-all duration-200 text-left"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,215,0,0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255,215,0,0.15)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                }}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(255,215,0,0.08)' }}>
-                  <Icon size={15} className="text-yellow-400" />
-                </div>
-                <div>
-                  <div className="text-white/80 text-sm font-medium">{item.label}</div>
-                  <div className="text-white/30 text-xs">{item.desc}</div>
-                </div>
-              </button>
-            );
-          })}
+        {/* Quick Access */}
+        <div className="max-w-5xl">
+          <div className="text-xs font-semibold tracking-wider mb-3" style={{ color: 'var(--text-3)' }}>QUICK ACCESS</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: TrendingUp, desc: 'Overview & analytics' },
+              { id: 'wallet', label: 'Wallet', icon: Shield, desc: 'Funds & deposits' },
+              { id: 'positions', label: 'Positions', icon: Globe, desc: 'Open trades' },
+              { id: 'history', label: 'History', icon: BarChart3, desc: 'Past trades' },
+            ].map(item => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentPage(item.id)}
+                  className="flex items-center gap-3 p-3 rounded-lg transition-all duration-150 text-left"
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-0)',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'var(--bg-hover)';
+                    e.currentTarget.style.borderColor = 'var(--border-1)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'var(--bg-card)';
+                    e.currentTarget.style.borderColor = 'var(--border-0)';
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'var(--bg-surface)' }}>
+                    <Icon size={14} style={{ color: 'var(--gold)' }} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-1)' }}>{item.label}</div>
+                    <div className="text-xs" style={{ color: 'var(--text-3)' }}>{item.desc}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

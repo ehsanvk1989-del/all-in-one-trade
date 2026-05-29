@@ -53,12 +53,12 @@ function CopyButton({ text }) {
     <button
       onClick={handleCopy}
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all"
-      style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.2)' }}
+      style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}
     >
       {copied ? (
-        <><CheckCircle size={13} className="text-emerald-400" /><span className="text-emerald-400 text-xs">Copied!</span></>
+        <><CheckCircle size={13} className="text-green-500" /><span className="text-green-500 text-xs">Copied!</span></>
       ) : (
-        <><Copy size={13} className="text-yellow-400" /><span className="text-yellow-400 text-xs">Copy</span></>
+        <><Copy size={13} className="text-yellow-500" /><span className="text-yellow-500 text-xs">Copy</span></>
       )}
     </button>
   );
@@ -115,23 +115,23 @@ export default function WalletPage() {
       <div className="relative rounded-2xl p-6 mb-5 overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, rgba(26,26,26,0.98), rgba(17,17,17,0.98))',
-          border: '1px solid rgba(255,215,0,0.15)',
-          boxShadow: '0 0 40px rgba(255,215,0,0.05)',
+          border: '1px solid rgba(201,168,76,0.15)',
+          boxShadow: '0 0 40px rgba(201,168,76,0.05)',
         }}>
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-5"
-          style={{ background: 'radial-gradient(circle, #ffd700, transparent)' }} />
+          style={{ background: 'radial-gradient(circle, #c9a84c, transparent)' }} />
 
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Wallet size={14} className="text-yellow-400" />
+              <Wallet size={14} className="text-yellow-500" />
               <span className="text-white/40 text-xs uppercase tracking-wider">Total Wallet Balance</span>
             </div>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold font-mono text-gradient-gold">
                 {formatCurrency(wallet.usdt)}
               </span>
-              <span className="text-yellow-400 font-bold text-lg mb-1">USDT</span>
+              <span className="text-yellow-500 font-bold text-lg mb-1">USDT</span>
             </div>
             <div className="text-white/30 text-sm mt-1">≈ ${formatCurrency(wallet.usdt)} USD</div>
           </div>
@@ -141,7 +141,7 @@ export default function WalletPage() {
               onClick={() => setActiveTab('deposit')}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all"
               style={{
-                background: activeTab === 'deposit' ? 'linear-gradient(135deg, #b8860b, #ffd700)' : 'rgba(255,255,255,0.05)',
+                background: activeTab === 'deposit' ? 'linear-gradient(135deg, #9a7a35, #c9a84c)' : 'rgba(255,255,255,0.05)',
                 color: activeTab === 'deposit' ? '#000' : '#fff',
               }}
             >
@@ -179,16 +179,16 @@ export default function WalletPage() {
           {/* Success/Error messages */}
           {successMsg && (
             <div className="flex items-center gap-2 p-3 rounded-lg mb-4"
-              style={{ background: 'rgba(6,214,160,0.1)', border: '1px solid rgba(6,214,160,0.3)' }}>
-              <CheckCircle size={14} className="text-emerald-400" />
-              <span className="text-emerald-400 text-sm">{successMsg}</span>
+              style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.3)' }}>
+              <CheckCircle size={14} style={{ color: 'var(--green)' }} />
+              <span className="text-sm" style={{ color: 'var(--green)' }}>{successMsg}</span>
             </div>
           )}
           {errorMsg && (
             <div className="flex items-center gap-2 p-3 rounded-lg mb-4"
-              style={{ background: 'rgba(230,57,70,0.1)', border: '1px solid rgba(230,57,70,0.3)' }}>
-              <AlertCircle size={14} className="text-red-400" />
-              <span className="text-red-400 text-sm">{errorMsg}</span>
+              style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.3)' }}>
+              <AlertCircle size={14} style={{ color: 'var(--red)' }} />
+              <span className="text-sm" style={{ color: 'var(--red)' }}>{errorMsg}</span>
             </div>
           )}
 
@@ -204,9 +204,9 @@ export default function WalletPage() {
                       onClick={() => setSelectedNetwork(n.id)}
                       className="py-2.5 rounded-lg text-sm font-semibold transition-all"
                       style={{
-                        background: selectedNetwork === n.id ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${selectedNetwork === n.id ? 'rgba(255,215,0,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        color: selectedNetwork === n.id ? '#ffd700' : 'rgba(255,255,255,0.5)',
+                        background: selectedNetwork === n.id ? 'rgba(201,168,76,0.10)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${selectedNetwork === n.id ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        color: selectedNetwork === n.id ? '#c9a84c' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {n.id}
@@ -297,9 +297,9 @@ export default function WalletPage() {
                       onClick={() => setWithdrawNetwork(n.id)}
                       className="py-2.5 rounded-lg text-sm font-semibold transition-all"
                       style={{
-                        background: withdrawNetwork === n.id ? 'rgba(230,57,70,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${withdrawNetwork === n.id ? 'rgba(230,57,70,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        color: withdrawNetwork === n.id ? '#e63946' : 'rgba(255,255,255,0.5)',
+                        background: withdrawNetwork === n.id ? 'rgba(201,168,76,0.10)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${withdrawNetwork === n.id ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        color: withdrawNetwork === n.id ? '#c9a84c' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {n.id}
@@ -335,7 +335,7 @@ export default function WalletPage() {
                 <div className="flex justify-between text-xs mt-1.5">
                   <span className="text-white/30">Available: {formatCurrency(wallet.usdt)} USDT</span>
                   <button
-                    className="text-yellow-400 hover:underline"
+                    className="text-yellow-500 hover:underline"
                     onClick={() => setWithdrawAmount(wallet.usdt.toFixed(2))}
                   >
                     Max
@@ -345,7 +345,7 @@ export default function WalletPage() {
 
               <div className="p-3 rounded-lg flex items-start gap-2"
                 style={{ background: 'rgba(230,57,70,0.06)', border: '1px solid rgba(230,57,70,0.15)' }}>
-                <AlertCircle size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-white/40">
                   Withdrawal fee: {NETWORKS.find(n => n.id === withdrawNetwork)?.fee}.
                   Demo platform — no real transactions.
@@ -379,25 +379,26 @@ export default function WalletPage() {
                 <div key={tx.id || i}
                   className="flex items-center gap-3 p-3 rounded-xl"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${tx.type === 'deposit' ? 'bg-emerald-500/15' : 'bg-red-500/15'}`}>
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: tx.type === 'deposit' ? 'var(--green-bg)' : 'var(--red-bg)' }}>
                     {tx.type === 'deposit'
-                      ? <ArrowDownCircle size={16} className="text-emerald-400" />
-                      : <ArrowUpCircle size={16} className="text-red-400" />
+                      ? <ArrowDownCircle size={16} style={{ color: 'var(--green)' }} />
+                      : <ArrowUpCircle size={16} style={{ color: 'var(--red)' }} />
                     }
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-white/80 text-sm font-medium capitalize">{tx.type}</span>
+                      <span className="text-sm font-medium capitalize" style={{ color: 'var(--text-1)' }}>{tx.type}</span>
                       <span className="badge-gold text-xs">{tx.network}</span>
                     </div>
-                    <div className="text-white/30 text-xs font-mono truncate mt-0.5">{tx.txHash}</div>
-                    <div className="text-white/20 text-xs">{tx.date}</div>
+                    <div className="text-xs font-mono truncate mt-0.5" style={{ color: 'var(--text-3)' }}>{tx.txHash}</div>
+                    <div className="text-xs" style={{ color: 'var(--text-4)' }}>{tx.date}</div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className={`font-mono font-bold text-sm ${tx.type === 'deposit' ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className="font-mono font-bold text-sm" style={{ color: tx.type === 'deposit' ? 'var(--green)' : 'var(--red)' }}>
                       {tx.type === 'deposit' ? '+' : '-'}{formatCurrency(tx.amount)} USDT
                     </div>
-                    <div className={`text-xs ${tx.status === 'completed' ? 'text-emerald-400' : 'text-yellow-400'}`}>
+                    <div className="text-xs" style={{ color: tx.status === 'completed' ? 'var(--green)' : 'var(--gold)' }}>
                       {tx.status}
                     </div>
                   </div>

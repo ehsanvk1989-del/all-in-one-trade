@@ -66,19 +66,19 @@ export default function Header() {
   const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-  const latencyColor = latency < 15 ? '#10b981' : latency < 25 ? '#eab308' : '#ef4444';
+  const latencyColor = latency < 15 ? '#1ea774' : latency < 25 ? '#c9a84c' : '#d44333';
 
   return (
     <header
       className="sticky top-0 z-20 flex flex-col"
       style={{
-        background: 'rgba(10,10,10,0.98)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: 'var(--bg-base)',
+        borderBottom: '1px solid var(--border-0)',
         backdropFilter: 'blur(20px)',
       }}
     >
       {/* Price Ticker */}
-      <div className="overflow-hidden py-1.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="overflow-hidden py-1.5" style={{ borderBottom: '1px solid var(--border-0)' }}>
         <div className="ticker-move">
           {[...tickerAssets, ...tickerAssets].map((asset, idx) => {
             const status = priceStatuses?.[asset.symbol] || 'connecting';
@@ -87,19 +87,18 @@ export default function Header() {
             const isUp = change >= 0;
             return (
               <span key={idx} className="inline-flex items-center gap-1.5 px-4 text-xs">
-                {status === 'live' && <span className="w-1 h-1 rounded-full bg-emerald-400 inline-block" />}
-                {status === 'connecting' && <span className="w-1 h-1 rounded-full bg-yellow-400 inline-block animate-pulse" />}
-                <span className="text-white/40 font-medium">{asset.symbol}</span>
-                <span className={`font-mono font-medium ${status === 'connecting' ? 'text-white/30' : 'text-white/80'}`}>
+                {status === 'live' && <span className="w-1 h-1 rounded-full inline-block" style={{ background: 'var(--green)' }} />}
+                {status === 'connecting' && <span className="w-1 h-1 rounded-full inline-block animate-pulse" style={{ background: 'var(--gold)' }} />}
+                <span className="font-medium" style={{ color: 'var(--text-3)' }}>{asset.symbol}</span>
+                <span className="font-mono font-medium" style={{ color: status === 'connecting' ? 'var(--text-4)' : 'var(--text-2)' }}>
                   {status === 'connecting' ? '---' : price >= 1000 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
                 </span>
                 {status === 'live' && (
-                  <span className={isUp ? 'text-emerald-400' : 'text-red-400'}>
+                  <span style={{ color: isUp ? 'var(--green)' : 'var(--red)' }}>
                     {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
                   </span>
                 )}
-                {status === 'unavailable' && <span className="text-white/20">N/A</span>}
-                <span className="text-white/10 ml-2">|</span>
+                <span className="ml-2" style={{ color: 'var(--border-1)' }}>|</span>
               </span>
             );
           })}
@@ -110,37 +109,38 @@ export default function Header() {
       <div className="flex items-center justify-between px-4 py-2.5 gap-3">
         {/* Left: Page Title */}
         <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-sm font-semibold text-white/90 tracking-wide whitespace-nowrap">
+          <h1 className="text-sm font-semibold tracking-wide whitespace-nowrap" style={{ color: 'var(--text-1)' }}>
             {PAGE_TITLES[currentPage] || 'Plus Trade'}
           </h1>
 
           {/* Server status */}
           <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ animation: 'pulse 2s infinite' }} />
-            <span className="text-emerald-400 text-xs font-medium">Connected</span>
+            style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.2)' }}>
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)', animation: 'pulse 2s infinite' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--green)' }}>Connected</span>
           </div>
         </div>
 
         {/* Center: Metrics */}
         <div className="hidden lg:flex items-center gap-5 flex-1 justify-center">
           <div className="flex items-center gap-2">
-            <span className="text-white/35 text-xs">Balance</span>
-            <span className="font-mono text-sm text-white font-semibold">
+            <span className="text-xs" style={{ color: 'var(--text-3)' }}>Balance</span>
+            <span className="font-mono text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
               ${formatCurrency(metrics.balance)}
             </span>
           </div>
-          <div className="w-px h-3.5 bg-white/10" />
+          <div className="w-px h-3.5" style={{ background: 'var(--border-1)' }} />
           <div className="flex items-center gap-2">
-            <span className="text-white/35 text-xs">Equity</span>
-            <span className="font-mono text-sm text-white font-semibold">
+            <span className="text-xs" style={{ color: 'var(--text-3)' }}>Equity</span>
+            <span className="font-mono text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
               ${formatCurrency(metrics.equity)}
             </span>
           </div>
-          <div className="w-px h-3.5 bg-white/10" />
+          <div className="w-px h-3.5" style={{ background: 'var(--border-1)' }} />
           <div className="flex items-center gap-2">
-            <span className="text-white/35 text-xs">P&L</span>
-            <span className={`font-mono text-sm font-semibold flex items-center gap-1 ${metrics.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span className="text-xs" style={{ color: 'var(--text-3)' }}>P&L</span>
+            <span className="font-mono text-sm font-semibold flex items-center gap-1"
+              style={{ color: metrics.pnl >= 0 ? 'var(--green)' : 'var(--red)' }}>
               {metrics.pnl >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
               {metrics.pnl >= 0 ? '+' : ''}{formatCurrency(metrics.pnl)}
             </span>
@@ -152,34 +152,34 @@ export default function Header() {
 
           {/* Clock */}
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <Clock size={11} className="text-white/30" />
-            <span className="font-mono text-xs text-white/60">{timeStr}</span>
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+            <Clock size={11} style={{ color: 'var(--text-3)' }} />
+            <span className="font-mono text-xs" style={{ color: 'var(--text-2)' }}>{timeStr}</span>
           </div>
 
           {/* Latency */}
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
             <Wifi size={11} style={{ color: latencyColor }} />
             <span className="font-mono text-xs" style={{ color: latencyColor }}>{latency}ms</span>
           </div>
 
           {/* LIVE */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(6,214,160,0.08)', border: '1px solid rgba(6,214,160,0.18)' }}>
-            <Activity size={10} className="text-emerald-400" />
-            <span className="text-emerald-400 text-xs font-semibold tracking-wider">LIVE</span>
+            style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.2)' }}>
+            <Activity size={10} style={{ color: 'var(--green)' }} />
+            <span className="text-xs font-semibold tracking-wider" style={{ color: 'var(--green)' }}>LIVE</span>
           </div>
 
           {/* Notification Bell */}
           <button
             onClick={() => { setNotifOpen(v => !v); setProfileOpen(false); }}
-            className="relative p-2 rounded-lg text-white/40 hover:text-white/80 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            className="relative p-2 rounded-lg transition-colors"
+            style={{ background: 'var(--bg-surface)', color: 'var(--text-3)' }}
           >
             <Bell size={15} />
             <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-              style={{ background: '#ffd700', boxShadow: '0 0 6px rgba(255,215,0,0.8)' }} />
+              style={{ background: 'var(--gold)' }} />
           </button>
 
           {/* Profile */}
@@ -189,34 +189,34 @@ export default function Header() {
                 onClick={() => { setProfileOpen(v => !v); setNotifOpen(false); }}
                 className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg transition-all"
                 style={{
-                  background: profileOpen ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${profileOpen ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                  background: profileOpen ? 'var(--gold-bg2)' : 'var(--bg-surface)',
+                  border: `1px solid ${profileOpen ? 'rgba(201,168,76,0.2)' : 'var(--border-0)'}`,
                 }}
               >
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-black text-xs font-black"
-                  style={{ background: 'linear-gradient(135deg, #b8860b, #ffd700)' }}>
+                  style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))' }}>
                   {user.name?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <span className="hidden sm:block text-white/70 text-xs font-medium max-w-[80px] truncate">
+                <span className="hidden sm:block text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-2)' }}>
                   {user.name || user.email?.split('@')[0]}
                 </span>
-                <ChevronDown size={12} className={`text-white/30 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={12} className={`transition-transform ${profileOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-3)' }} />
               </button>
 
               {profileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-52 rounded-xl overflow-hidden z-50 animate-fade-in"
                   style={{
-                    background: 'rgba(14,16,20,0.98)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-1)',
+                    boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
                     backdropFilter: 'blur(20px)',
                   }}>
-                  <div className="px-4 py-3 border-b border-white/5">
-                    <div className="text-white/80 text-sm font-semibold">{user.name || user.email?.split('@')[0]}</div>
-                    <div className="text-white/35 text-xs mt-0.5 truncate">{user.email}</div>
+                  <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border-0)' }}>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>{user.name || user.email?.split('@')[0]}</div>
+                    <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-3)' }}>{user.email}</div>
                     <div className="flex items-center gap-1.5 mt-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span className="text-emerald-400 text-xs">Premium Account</span>
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)' }} />
+                      <span className="text-xs" style={{ color: 'var(--green)' }}>Premium Account</span>
                     </div>
                   </div>
                   <div className="py-1.5">
@@ -225,15 +225,21 @@ export default function Header() {
                       { icon: Settings, label: 'Settings' },
                     ].map(({ icon: Icon, label }) => (
                       <button key={label}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-white/50 hover:text-white/90 hover:bg-white/5 transition-colors text-sm">
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-sm"
+                        style={{ color: 'var(--text-2)' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-1)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = 'var(--text-2)'; }}>
                         <Icon size={14} />
                         {label}
                       </button>
                     ))}
-                    <div className="border-t border-white/5 mt-1 pt-1">
+                    <div className="mt-1 pt-1" style={{ borderTop: '1px solid var(--border-0)' }}>
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-red-400/70 hover:text-red-400 hover:bg-red-500/08 transition-colors text-sm">
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-sm"
+                        style={{ color: 'var(--red)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--red-bg)'}
+                        onMouseLeave={e => e.currentTarget.style.background = ''}>
                         <LogOut size={14} />
                         Sign Out
                       </button>

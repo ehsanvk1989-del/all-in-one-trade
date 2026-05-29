@@ -4,292 +4,261 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  --bg-deep:    #07080c;
+  --bg-base:    #0c0d13;
+  --bg-surface: #12141e;
+  --bg-card:    #181b26;
+  --bg-hover:   #1e2230;
+  --border-0:   rgba(255,255,255,0.05);
+  --border-1:   rgba(255,255,255,0.08);
+  --border-2:   rgba(255,255,255,0.13);
+  --gold:       #c9a84c;
+  --gold-light: #e2c168;
+  --gold-dark:  #9a7a35;
+  --gold-bg:    rgba(201,168,76,0.10);
+  --gold-bg2:   rgba(201,168,76,0.06);
+  --text-1:     #f0ede8;
+  --text-2:     rgba(240,237,232,0.58);
+  --text-3:     rgba(240,237,232,0.30);
+  --text-4:     rgba(240,237,232,0.16);
+  --green:      #1ea774;
+  --green-bg:   rgba(30,167,116,0.12);
+  --red:        #d44333;
+  --red-bg:     rgba(212,67,51,0.12);
+}
+
 @layer base {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
-    background: #0a0a0a;
-    color: white;
+    background: var(--bg-deep);
+    color: var(--text-1);
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    font-size: 15px;
   }
 
-  #root {
-    width: 100%;
-    min-height: 100vh;
-    background: #0a0a0a;
-  }
+  #root { width: 100%; min-height: 100vh; background: var(--bg-deep); }
 
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #111111;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #333333;
-    border-radius: 9999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555555;
-  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 }
 
 @layer components {
+
+  /* ── Surfaces ─────────────────────────────────────────────────────── */
   .glass-dark {
-    background: rgba(17, 17, 17, 0.8);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--bg-card);
+    border: 1px solid var(--border-1);
   }
 
   .card-premium {
-    background: linear-gradient(145deg, rgba(26, 26, 26, 0.95), rgba(17, 17, 17, 0.95));
-    border: 1px solid rgba(255, 215, 0, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    transition: all 0.3s ease;
+    background: var(--bg-card);
+    border: 1px solid var(--border-0);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
   }
-
   .card-premium:hover {
-    border-color: rgba(255, 215, 0, 0.2);
-    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.05);
+    border-color: rgba(201,168,76,0.18);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.5);
   }
 
+  /* ── Buttons ──────────────────────────────────────────────────────── */
   .btn-gold {
-    background: linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
-    background-size: 200% 200%;
-    color: #000;
+    background: linear-gradient(135deg, #c9a84c, #e2c168);
+    color: #0c0d13;
     font-weight: 700;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
-
   .btn-gold:hover {
-    background-position: right center;
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+    background: linear-gradient(135deg, #d4b55a, #ecd07a);
+    box-shadow: 0 4px 18px rgba(201,168,76,0.28);
     transform: translateY(-1px);
   }
 
   .btn-buy {
-    background: linear-gradient(135deg, #065f46 0%, #059669 50%, #065f46 100%);
+    background: linear-gradient(135deg, #0f5c3a 0%, #1ea774 100%);
     color: #fff;
     font-weight: 700;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
-
   .btn-buy:hover {
-    box-shadow: 0 0 25px rgba(6, 214, 160, 0.4);
+    box-shadow: 0 4px 18px rgba(30,167,116,0.28);
     transform: translateY(-1px);
   }
 
   .btn-sell {
-    background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 50%, #7f1d1d 100%);
+    background: linear-gradient(135deg, #6b1a14 0%, #d44333 100%);
     color: #fff;
     font-weight: 700;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
-
   .btn-sell:hover {
-    box-shadow: 0 0 25px rgba(230, 57, 70, 0.4);
+    box-shadow: 0 4px 18px rgba(212,67,51,0.28);
     transform: translateY(-1px);
   }
 
+  /* ── Typography ───────────────────────────────────────────────────── */
   .text-gold {
-    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    background: linear-gradient(135deg, #e2c168, #c9a84c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
+  /* ── Form ─────────────────────────────────────────────────────────── */
   .input-dark {
-    background: rgba(17, 17, 17, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: white;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-1);
+    color: var(--text-1);
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     width: 100%;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease;
     outline: none;
+    font-size: 0.875rem;
   }
-
   .input-dark:focus {
-    border-color: rgba(255, 215, 0, 0.4);
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1);
+    border-color: rgba(201,168,76,0.45);
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
   }
+  .input-dark::placeholder { color: var(--text-4); }
 
+  /* ── Sidebar ──────────────────────────────────────────────────────── */
   .sidebar-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.625rem 0.75rem;
-    border-radius: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.45rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.18s ease;
+    color: var(--text-3);
     border: 1px solid transparent;
+    font-size: 0.875rem;
   }
-
   .sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-1);
   }
-
   .sidebar-item.active {
-    background: rgba(255, 215, 0, 0.1);
-    color: #ffd700;
-    border-color: rgba(255, 215, 0, 0.2);
-    box-shadow: 0 0 16px rgba(255, 215, 0, 0.08), inset 0 1px 0 rgba(255, 215, 0, 0.08);
+    background: var(--gold-bg);
+    color: var(--gold-light);
+    border-color: rgba(201,168,76,0.18);
   }
 
+  /* ── Nav tabs ─────────────────────────────────────────────────────── */
   .nav-tab {
     padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
-    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.18s ease;
+    color: var(--text-3);
     border-bottom: 2px solid transparent;
     white-space: nowrap;
+    letter-spacing: 0.01em;
   }
+  .nav-tab:hover { color: var(--text-1); }
+  .nav-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
 
-  .nav-tab:hover {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .nav-tab.active {
-    color: #ffd700;
-    border-bottom-color: #ffd700;
-  }
-
+  /* ── Stat card ────────────────────────────────────────────────────── */
   .stat-card {
-    background: rgba(17, 17, 17, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-card);
+    border: 1px solid var(--border-0);
     border-radius: 0.75rem;
     padding: 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
-
   .stat-card:hover {
-    border-color: rgba(255, 215, 0, 0.15);
-    transform: translateY(-2px);
+    border-color: var(--border-1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
   }
 
+  /* ── Badges ───────────────────────────────────────────────────────── */
   .badge-green {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.5rem;
+    display: inline-flex; align-items: center;
+    padding: 0.15rem 0.5rem;
     border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    font-size: 0.72rem; font-weight: 600;
+    background: var(--green-bg); color: var(--green);
   }
-
   .badge-red {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.5rem;
+    display: inline-flex; align-items: center;
+    padding: 0.15rem 0.5rem;
     border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    font-size: 0.72rem; font-weight: 600;
+    background: var(--red-bg); color: var(--red);
   }
-
   .badge-gold {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.5rem;
+    display: inline-flex; align-items: center;
+    padding: 0.15rem 0.5rem;
     border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(255, 215, 0, 0.15);
-    color: #ffd700;
+    font-size: 0.72rem; font-weight: 600;
+    background: var(--gold-bg); color: var(--gold-light);
   }
 
+  /* ── Ticker ───────────────────────────────────────────────────────── */
   .ticker-move {
     display: inline-flex;
     white-space: nowrap;
-    animation: ticker 40s linear infinite;
+    animation: ticker 45s linear infinite;
   }
 }
 
 @layer utilities {
   .text-gradient-gold {
-    background: linear-gradient(135deg, #ffd700, #ff9500);
+    background: linear-gradient(135deg, #e2c168, #c9a84c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 }
 
+/* ─── Keyframes ────────────────────────────────────────────────────────────── */
 @keyframes ticker {
-  0% { transform: translateX(0%); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes priceFlash {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
-}
+.animate-fade-in  { animation: fadeIn 0.35s ease forwards; }
+.animate-slide-in { animation: slideIn 0.3s ease forwards; }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease forwards;
-}
-
+/* Subtle price flash — institutional, not neon */
+@keyframes priceUp   { 0%,100%{color:#1ea774;} 50%{color:#42c98e;} }
+@keyframes priceDown { 0%,100%{color:#d44333;} 50%{color:#e06b5e;} }
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.2); }
-  50%       { box-shadow: 0 0 24px rgba(255, 215, 0, 0.5); }
+  0%,100%{box-shadow:0 0 0 1px rgba(201,168,76,0.1);}
+  50%    {box-shadow:0 0 0 1px rgba(201,168,76,0.25);}
 }
-
 @keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.85); }
+  0%,100%{opacity:1;transform:scale(1);}
+  50%    {opacity:0.55;transform:scale(0.82);}
 }
-
 @keyframes priceFlashGreen {
-  0%   { color: #10b981; }
-  50%  { color: #6ee7b7; text-shadow: 0 0 8px rgba(16,185,129,0.6); }
-  100% { color: #10b981; }
+  0%  { background: rgba(30,167,116,0.12); }
+  100%{ background: transparent; }
 }
-
 @keyframes priceFlashRed {
-  0%   { color: #ef4444; }
-  50%  { color: #fca5a5; text-shadow: 0 0 8px rgba(239,68,68,0.6); }
-  100% { color: #ef4444; }
+  0%  { background: rgba(212,67,51,0.12); }
+  100%{ background: transparent; }
 }
-
-.animate-glow-pulse {
-  animation: glowPulse 2s ease-in-out infinite;
-}
-
-.animate-price-up {
-  animation: priceFlashGreen 1.5s ease-in-out infinite;
-}
-
-.animate-price-down {
-  animation: priceFlashRed 1.5s ease-in-out infinite;
-}
+.animate-glow-pulse  { animation: glowPulse 3s ease-in-out infinite; }
+.animate-price-up    { animation: priceUp   2s ease-in-out infinite; }
+.animate-price-down  { animation: priceDown 2s ease-in-out infinite; }

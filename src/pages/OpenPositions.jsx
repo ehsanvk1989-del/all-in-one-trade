@@ -26,7 +26,7 @@ export default function OpenPositions() {
   }, 0);
 
   const MODULE_LABELS = { simple: 'Simple Trade', crypto: 'Crypto Futures', forex: 'Forex & Commodities' };
-  const MODULE_COLORS = { simple: '#e63946', crypto: '#4361ee', forex: '#06d6a0' };
+  const MODULE_COLORS = { simple: '#c9a84c', crypto: '#c9a84c', forex: '#1ea774' };
 
   return (
     <div className="flex-1 overflow-y-auto p-5 animate-fade-in">
@@ -37,13 +37,13 @@ export default function OpenPositions() {
           {
             label: 'Unrealized P&L',
             value: `${totalPnL >= 0 ? '+' : ''}$${formatCurrency(Math.abs(totalPnL))}`,
-            color: totalPnL >= 0 ? 'text-emerald-400' : 'text-red-400',
+            color: totalPnL >= 0 ? 'text-green-500' : 'text-red-500',
           },
           { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: 'text-white' },
           {
             label: 'Margin Level',
             value: `${metrics.marginLevel.toFixed(1)}%`,
-            color: metrics.marginLevel > 200 ? 'text-emerald-400' : metrics.marginLevel > 100 ? 'text-yellow-400' : 'text-red-400',
+            color: metrics.marginLevel > 200 ? 'text-green-500' : metrics.marginLevel > 100 ? 'text-yellow-500' : 'text-red-500',
           },
         ].map(stat => (
           <div key={stat.label} className="stat-card">
@@ -62,9 +62,9 @@ export default function OpenPositions() {
             onClick={() => setFilter(f)}
             className="px-3 py-1 rounded-lg text-xs font-medium transition-all capitalize"
             style={{
-              background: filter === f ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.04)',
-              color: filter === f ? '#ffd700' : 'rgba(255,255,255,0.5)',
-              border: `1px solid ${filter === f ? 'rgba(255,215,0,0.25)' : 'rgba(255,255,255,0.06)'}`,
+              background: filter === f ? 'rgba(201,168,76,0.10)' : 'rgba(255,255,255,0.04)',
+              color: filter === f ? '#c9a84c' : 'rgba(255,255,255,0.5)',
+              border: `1px solid ${filter === f ? 'rgba(201,168,76,0.25)' : 'rgba(255,255,255,0.06)'}`,
             }}>
             {f === 'all' ? 'All' : MODULE_LABELS[f]}
           </button>
@@ -124,7 +124,7 @@ export default function OpenPositions() {
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className={`flex items-center gap-1 text-xs font-bold ${isBuy ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <span className={`flex items-center gap-1 text-xs font-bold ${isBuy ? 'text-green-500' : 'text-red-500'}`}>
                           {isBuy ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                           {pos.direction.toUpperCase()}
                         </span>
@@ -141,20 +141,20 @@ export default function OpenPositions() {
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-1">
-                          {nearLiq && <AlertTriangle size={11} className="text-yellow-400 flex-shrink-0" />}
-                          <span className={`font-mono text-xs ${nearLiq ? 'text-yellow-400' : 'text-white/40'}`}>
+                          {nearLiq && <AlertTriangle size={11} className="text-yellow-500 flex-shrink-0" />}
+                          <span className={`font-mono text-xs ${nearLiq ? 'text-yellow-500' : 'text-white/40'}`}>
                             {liqPrice >= 100 ? liqPrice.toFixed(2) : liqPrice.toFixed(4)}
                           </span>
                         </div>
                         <div className="text-white/20 text-xs">{distToLiq.toFixed(1)}% away</div>
                       </td>
                       <td className="px-3 py-3">
-                        <div className={`font-mono font-bold text-sm ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <div className={`font-mono font-bold text-sm ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
                           {isProfit ? '+' : ''}{formatCurrency(pnl)}
                         </div>
                       </td>
                       <td className="px-3 py-3">
-                        <div className={`font-mono text-sm font-bold ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <div className={`font-mono text-sm font-bold ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
                           {isProfit ? '+' : ''}{roe.toFixed(2)}%
                         </div>
                       </td>
@@ -164,15 +164,15 @@ export default function OpenPositions() {
                           onClick={() => closePosition(pos.id)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                           style={{
-                            background: 'rgba(220,38,38,0.1)',
-                            color: '#ef4444',
-                            border: '1px solid rgba(220,38,38,0.2)',
+                            background: 'var(--red-bg)',
+                            color: 'var(--red)',
+                            border: '1px solid rgba(212,67,51,0.2)',
                           }}
                           onMouseEnter={e => {
-                            e.currentTarget.style.background = 'rgba(220,38,38,0.25)';
+                            e.currentTarget.style.background = 'rgba(212,67,51,0.25)';
                           }}
                           onMouseLeave={e => {
-                            e.currentTarget.style.background = 'rgba(220,38,38,0.1)';
+                            e.currentTarget.style.background = 'var(--red-bg)';
                           }}
                         >
                           <X size={11} /> Close
@@ -193,9 +193,9 @@ export default function OpenPositions() {
             onClick={() => filteredPositions.forEach(p => closePosition(p.id))}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
             style={{
-              background: 'rgba(220,38,38,0.1)',
-              color: '#ef4444',
-              border: '1px solid rgba(220,38,38,0.2)',
+              background: 'var(--red-bg)',
+              color: 'var(--red)',
+              border: '1px solid rgba(212,67,51,0.2)',
             }}>
             <X size={14} /> Close All Positions
           </button>
