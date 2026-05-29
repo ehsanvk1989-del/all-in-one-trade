@@ -1,115 +1,163 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { TrendingUp, TrendingDown, AlertCircle, Activity } from 'lucide-react';
+import { AlertCircle, Activity, Star, Search, Clock, Calendar, Brain, Zap, ChevronDown, Gauge } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { FOREX_ASSETS, formatCurrency } from '../utils/mockData';
 import TradingViewWidget from '../components/charts/TradingViewWidget';
+import {
+  injectTradeAnims, usePriceHistory, useFavorites,
+  getSentiment, getVolatility, buildInsight,
+  Sparkline, MeterBar, Pill, StatChip, RangeBar,
+} from '../components/trade/TradeKit';
 
-/* ─── Helpers ────────────────────────────────────────────── */
+injectTradeAnims();
+
+/* ─── Trading sessions (UTC) ─────────────────────────────── */
+const SESSIONS = [
+  { name: 'Sydney', open: 22, close: 7 },
+  { name: 'Tokyo', open: 0, close: 9 },
+  { name: 'London', open: 8, close: 17 },
+  { name: 'New York', open: 13, close: 22 },
+];
+function sessionActive(s, h) {
+  return s.open < s.close ? (h >= s.open && h < s.close) : (h >= s.open || h < s.close);
+}
+
+/* ─── Economic calendar (next events) ────────────────────── */
+const ECON_EVENTS = [
+  { time: '13:30', cur: 'USD', title: 'Core CPI m/m', impact: 'high' },
+  { time: '15:00', cur: 'USD', title: 'Fed Chair Speaks', impact: 'high' },
+  { time: '09:00', cur: 'EUR', title: 'ECB Economic Bulletin', impact: 'med' },
+  { time: '07:00', cur: 'GBP', title: 'GDP m/m', impact: 'med' },
+  { time: '23:50', cur: 'JPY', title: 'BOJ Summary of Opinions', impact: 'low' },
+];
+const IMPACT_COLOR = { high: 'var(--red)', med: 'var(--warn)', low: 'var(--text-3)' };
+
+/* ─── Section label ──────────────────────────────────────── */
 function SectionLabel({ children, right }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/25 whitespace-nowrap">
-        {children}
-      </span>
-      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-      {right && <span className="text-[10px] text-white/30 whitespace-nowrap">{right}</span>}
+    <div className="flex items-center gap-2 mb-2.5">
+      <span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap" style={{ color: 'var(--text-3)' }}>{children}</span>
+      <div className="flex-1 h-px" style={{ background: 'var(--border-0)' }} />
+      {right && <span className="text-xs whitespace-nowrap" style={{ color: 'var(--text-3)' }}>{right}</span>}
     </div>
   );
 }
 
-/* ─── Market Watch Sidebar ───────────────────────────────── */
-function MarketWatch({ prices, priceStatuses, selected, onSelect }) {
+/* ─── Market Watch sidebar ───────────────────────────────── */
+function MarketWatch({ prices, priceStatuses, histRef, selected, onSelect, favs, onFav }) {
+  const [query, setQuery] = useState('');
+  const [now, setNow] = useState(new Date());
+  useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
+  const h = now.getUTCHours();
+
+  const filtered = FOREX_ASSETS
+    .filter(a => a.symbol.toLowerCase().includes(query.toLowerCase()) || a.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => (favs.has(b.symbol) ? 1 : 0) - (favs.has(a.symbol) ? 1 : 0));
+
   return (
-    <div className="flex-shrink-0 flex flex-col h-full border-r border-white/5 overflow-hidden"
-      style={{ width: 162, background: '#0c0e11' }}>
-      {/* Header */}
-      <div className="px-3 py-3 border-b border-white/5 flex-shrink-0">
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/25">Market Watch</span>
+    <div className="flex-shrink-0 flex flex-col border-r overflow-hidden"
+      style={{ width: 208, background: 'var(--bg-surface)', borderColor: 'var(--border-0)' }}>
+      {/* Search */}
+      <div className="p-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-0)' }}>
+        <div className="flex items-center gap-2 px-2.5 py-2 rounded-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-0)' }}>
+          <Search size={12} style={{ color: 'var(--text-3)' }} />
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search markets…"
+            className="bg-transparent outline-none text-xs flex-1 min-w-0" style={{ color: 'var(--text-1)' }} />
+        </div>
       </div>
 
-      {/* Asset list */}
-      <div className="flex-1 overflow-y-auto">
-        {FOREX_ASSETS.map(asset => {
+      {/* List */}
+      <div className="flex-1 overflow-y-auto tk-no-scrollbar">
+        {filtered.map(asset => {
           const status = priceStatuses?.[asset.symbol] || 'connecting';
           const price = prices[asset.symbol] ?? asset.basePrice;
           const change = ((price - asset.basePrice) / asset.basePrice) * 100;
           const isUp = change >= 0;
           const isSel = selected.symbol === asset.symbol;
-
           return (
             <div key={asset.symbol} onClick={() => onSelect(asset)}
-              className="px-3 py-3 cursor-pointer transition-all"
+              className="px-3 py-2.5 cursor-pointer transition-all"
               style={{
-                background: isSel ? 'rgba(255,255,255,0.05)' : 'transparent',
-                borderLeft: `2px solid ${isSel ? '#3B82F6' : 'transparent'}`,
-                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                background: isSel ? 'rgba(59,130,246,0.1)' : 'transparent',
+                borderLeft: `2px solid ${isSel ? 'var(--brand)' : 'transparent'}`,
+                borderBottom: '1px solid var(--border-0)',
               }}>
               <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-sm leading-none">{asset.icon}</span>
-                  <span className={`text-xs font-bold ${isSel ? 'text-white' : 'text-white/65'}`}>
-                    {asset.symbol}
-                  </span>
+                  <span className="text-xs font-bold truncate" style={{ color: isSel ? 'var(--text-1)' : 'var(--text-2)' }}>{asset.symbol}</span>
+                  <Star size={10} onClick={(e) => { e.stopPropagation(); onFav(asset.symbol); }}
+                    className="cursor-pointer flex-shrink-0 hover:scale-125 transition-transform"
+                    style={{ color: favs.has(asset.symbol) ? 'var(--warn)' : 'var(--text-4)', fill: favs.has(asset.symbol) ? 'var(--warn)' : 'none' }} />
                 </div>
-                {status === 'live'
-                  ? <span className={`text-[10px] font-semibold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>{isUp ? '+' : ''}{change.toFixed(2)}%</span>
-                  : <span className={`text-[10px] font-semibold ${status === 'connecting' ? 'text-yellow-400/60' : 'text-white/25'}`}>{status === 'connecting' ? '···' : 'N/A'}</span>
-                }
+                <Sparkline history={histRef.current[asset.symbol] || []} up={isUp} w={36} h={16} id={`mw-${asset.symbol}`} fill={false} />
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className={`w-1 h-1 rounded-full flex-shrink-0 ${status === 'live' ? 'bg-emerald-400' : status === 'connecting' ? 'bg-yellow-400 animate-pulse' : 'bg-white/20'}`} />
-                <div className={`font-mono text-xs font-semibold ${isSel ? 'text-white' : 'text-white/55'}`}>
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-semibold" style={{ color: isSel ? 'var(--text-1)' : 'var(--text-3)' }}>
                   {status === 'unavailable' ? 'No data' : status === 'connecting' ? '--' : price >= 100 ? price.toFixed(2) : price >= 1 ? price.toFixed(4) : price.toFixed(5)}
-                </div>
+                </span>
+                <span className="text-xs font-bold" style={{ color: status !== 'live' ? 'var(--text-4)' : isUp ? 'var(--green)' : 'var(--red)' }}>
+                  {status === 'live' ? `${isUp ? '+' : ''}${change.toFixed(2)}%` : '···'}
+                </span>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Session indicator */}
-      <div className="px-3 py-2.5 border-t border-white/5 flex-shrink-0">
-        <div className="flex items-center gap-1.5 mb-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[10px] text-white/30 font-semibold">Markets Open</span>
+      {/* Session tracker */}
+      <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border-0)' }}>
+        <div className="flex items-center gap-1.5 mb-2">
+          <Clock size={11} style={{ color: 'var(--text-3)' }} />
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Sessions</span>
         </div>
-        <div className="text-[10px] text-white/20">London / NY sessions</div>
+        <div className="space-y-1.5">
+          {SESSIONS.map(s => {
+            const active = sessionActive(s, h);
+            return (
+              <div key={s.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: active ? 'var(--green)' : 'var(--text-4)', animation: active ? 'pulse 2s infinite' : 'none' }} />
+                  <span className="text-xs" style={{ color: active ? 'var(--text-1)' : 'var(--text-3)' }}>{s.name}</span>
+                </div>
+                <span className="text-xs font-semibold" style={{ color: active ? 'var(--green)' : 'var(--text-4)' }}>{active ? 'Open' : 'Closed'}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
-/* ─── Position Row ───────────────────────────────────────── */
+/* ─── Position row ───────────────────────────────────────── */
 function PositionRow({ pos, prices, onClose }) {
-  const currentPrice = prices[pos.symbol] ?? pos.openPrice;
-  const diff = pos.direction === 'buy' ? currentPrice - pos.openPrice : pos.openPrice - currentPrice;
+  const cur = prices[pos.symbol] ?? pos.openPrice;
+  const diff = pos.direction === 'buy' ? cur - pos.openPrice : pos.openPrice - cur;
   const pnl = diff * pos.volume * pos.leverage;
   const profit = pnl >= 0;
-
+  const dec = pos.openPrice >= 100 ? 2 : 4;
   return (
-    <tr className="border-b border-white/5 text-xs hover:bg-white/2 transition-colors">
-      <td className="py-2.5 px-3 font-semibold text-white/80">{pos.symbol}</td>
-      <td className={`py-2.5 px-3 font-bold ${pos.direction === 'buy' ? 'text-emerald-400' : 'text-red-400'}`}>
-        {pos.direction.toUpperCase()}
+    <tr className="text-xs transition-colors" style={{ borderBottom: '1px solid var(--border-0)' }}
+      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+      <td className="py-2.5 px-3 font-semibold" style={{ color: 'var(--text-1)' }}>{pos.symbol}</td>
+      <td className="py-2.5 px-3 font-bold" style={{ color: pos.direction === 'buy' ? 'var(--green)' : 'var(--red)' }}>
+        {pos.direction === 'buy' ? '▲ BUY' : '▼ SELL'}
       </td>
-      <td className="py-2.5 px-3"><span className="badge-brand text-[11px]">{pos.leverage}x</span></td>
-      <td className="py-2.5 px-3 font-mono text-white/55">{pos.volume}</td>
-      <td className="py-2.5 px-3 font-mono text-white/55">
-        {pos.openPrice >= 100 ? pos.openPrice.toFixed(2) : pos.openPrice.toFixed(4)}
-      </td>
-      <td className="py-2.5 px-3 font-mono text-white/80 font-medium">
-        {currentPrice >= 100 ? currentPrice.toFixed(2) : currentPrice.toFixed(4)}
-      </td>
-      <td className={`py-2.5 px-3 font-mono font-bold ${profit ? 'text-emerald-400' : 'text-red-400'}`}>
+      <td className="py-2.5 px-3"><span className="badge-brand text-xs">{pos.leverage}x</span></td>
+      <td className="py-2.5 px-3 font-mono" style={{ color: 'var(--text-2)' }}>{pos.volume}</td>
+      <td className="py-2.5 px-3 font-mono" style={{ color: 'var(--text-2)' }}>{pos.openPrice.toFixed(dec)}</td>
+      <td className="py-2.5 px-3 font-mono font-medium" style={{ color: 'var(--text-1)' }}>{cur.toFixed(dec)}</td>
+      <td className="py-2.5 px-3 tk-pnl font-mono font-bold" style={{ color: profit ? 'var(--green)' : 'var(--red)' }}>
         {profit ? '+' : ''}{formatCurrency(pnl)}
       </td>
       <td className="py-2.5 px-3">
         <button onClick={() => onClose(pos.id)}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: 'rgba(239,68,68,0.1)', color: '#d44333', border: '1px solid rgba(239,68,68,0.2)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.25)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.transform = 'none'; }}
-        >
+          style={{ background: 'var(--red-bg)', color: 'var(--red)', border: '1px solid rgba(212,67,51,0.2)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,67,51,0.25)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'var(--red-bg)'}>
           Close
         </button>
       </td>
@@ -117,31 +165,36 @@ function PositionRow({ pos, prices, onClose }) {
   );
 }
 
-/* ─── Main page ──────────────────────────────────────────── */
+/* ─── Main ───────────────────────────────────────────────── */
 export default function ForexCommodities() {
   const { prices, priceStatuses, positions, openPosition, closePosition, wallet, getMetrics } = useApp();
+  const symbols = FOREX_ASSETS.map(a => a.symbol);
+  const histRef = usePriceHistory(prices, symbols);
+  const [favs, toggleFav] = useFavorites('tk-forex-favs');
+
   const [selectedAsset, setSelectedAsset] = useState(FOREX_ASSETS[0]);
   const [leverage, setLeverage] = useState(10);
   const [direction, setDirection] = useState('buy');
   const [volume, setVolume] = useState('0.1');
   const [stopLoss, setStopLoss] = useState('');
   const [takeProfit, setTakeProfit] = useState('');
+  const [showTpSl, setShowTpSl] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [bottomTab, setBottomTab] = useState('positions');
   const [metrics, setMetrics] = useState(getMetrics());
-  const stats24hRef = useRef({});
+  const [flash, setFlash] = useState('');
+  const statsRef = useRef({});
+  const prevPriceRef = useRef({});
 
-  // Stable 24h stats per symbol
-  if (!stats24hRef.current[selectedAsset.symbol]) {
+  if (!statsRef.current[selectedAsset.symbol]) {
     const bp = selectedAsset.basePrice;
-    stats24hRef.current[selectedAsset.symbol] = {
+    statsRef.current[selectedAsset.symbol] = {
       high: bp * (1 + 0.006 + Math.random() * 0.006),
       low: bp * (1 - 0.006 - Math.random() * 0.006),
-      change: (Math.random() - 0.42) * 0.8,
     };
   }
-  const stats = stats24hRef.current[selectedAsset.symbol];
+  const stats = statsRef.current[selectedAsset.symbol];
 
   useEffect(() => {
     const t = setInterval(() => setMetrics(getMetrics()), 1000);
@@ -154,160 +207,160 @@ export default function ForexCommodities() {
   const isUp = priceChange >= 0;
   const myPositions = positions.filter(p => p.module === 'forex');
   const spread = selectedAsset.spread;
-
+  const dec = currentPrice >= 100 ? 2 : currentPrice >= 1 ? 4 : 5;
   const askPrice = currentPrice + spread;
   const bidPrice = currentPrice - spread;
+
+  // Flash
+  useEffect(() => {
+    const prev = prevPriceRef.current[selectedAsset.symbol];
+    if (prev !== undefined && currentPrice !== prev) {
+      setFlash(currentPrice > prev ? 'up' : 'down');
+      const t = setTimeout(() => setFlash(''), 600);
+      prevPriceRef.current[selectedAsset.symbol] = currentPrice;
+      return () => clearTimeout(t);
+    }
+    prevPriceRef.current[selectedAsset.symbol] = currentPrice;
+  }, [currentPrice, selectedAsset.symbol]);
+
+  // Analytics
+  const history = histRef.current[selectedAsset.symbol] || [];
+  const sentiment = getSentiment(history);
+  const volatility = getVolatility(history);
+  const insight = buildInsight({ change: priceChange, sentiment, volatility, direction });
+  const buyers = sentiment.dir === 'up' ? Math.max(55, sentiment.score) : sentiment.dir === 'down' ? Math.min(45, sentiment.score) : 50;
 
   const handleTrade = useCallback(() => {
     const vol = parseFloat(volume);
     if (!vol || vol <= 0) { setError('Enter a valid volume'); return; }
-
     openPosition({
       symbol: selectedAsset.symbol,
       name: selectedAsset.name,
       openPrice: direction === 'buy' ? askPrice : bidPrice,
-      volume: vol,
-      leverage,
-      direction,
+      volume: vol, leverage, direction,
       stopLoss: stopLoss ? parseFloat(stopLoss) : null,
       takeProfit: takeProfit ? parseFloat(takeProfit) : null,
       module: 'forex',
     });
-
     setError('');
     setSuccess(`${direction.toUpperCase()} ${vol} lots on ${selectedAsset.symbol}`);
     setTimeout(() => setSuccess(''), 3000);
   }, [volume, leverage, direction, openPosition, selectedAsset, stopLoss, takeProfit, askPrice, bidPrice]);
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col" style={{ background: '#0d1117' }}>
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--bg-base)' }}>
 
-      {/* ── Symbol info bar — TradingView style ── */}
-      <div className="flex items-center gap-0 px-4 border-b border-white/5 flex-shrink-0"
-        style={{ background: '#0e1218' }}>
-        <div className="flex items-center gap-3 py-2.5 mr-5">
-          <span className="text-xl leading-none">{selectedAsset.icon}</span>
+      {/* ── Symbol header ── */}
+      <div className="flex items-center gap-5 px-4 py-3 overflow-x-auto tk-no-scrollbar flex-shrink-0"
+        style={{ borderBottom: '1px solid var(--border-0)', background: 'var(--bg-surface)' }}>
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <span className="text-2xl leading-none">{selectedAsset.icon}</span>
           <div>
-            <div className="text-sm font-bold text-white">{selectedAsset.symbol}</div>
-            <div className="text-[10px] text-white/30">{selectedAsset.name} • Perpetual CFD</div>
+            <div className="text-sm font-bold" style={{ color: 'var(--text-1)' }}>{selectedAsset.symbol}</div>
+            <div className="text-xs" style={{ color: 'var(--text-3)' }}>{selectedAsset.name} · CFD</div>
           </div>
         </div>
 
-        <div className="w-px h-8 bg-white/5 mr-5 flex-shrink-0" />
-
-        {/* Price */}
-        <div className="mr-5 py-2.5">
+        <div className="flex-shrink-0">
           {priceStatus === 'unavailable' ? (
-            <div className="text-xs text-yellow-400/80 font-semibold flex items-center gap-1.5">
-              <AlertCircle size={12} className="text-yellow-400" />
-              Real market data unavailable
+            <div className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'var(--warn)' }}>
+              <AlertCircle size={12} /> Market data unavailable
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2">
-                {priceStatus === 'live' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />}
-                {priceStatus === 'connecting' && <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />}
-                <div className={`font-mono text-xl font-bold leading-none ${priceStatus === 'connecting' ? 'text-white/40' : isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {priceStatus === 'connecting' ? '---' : currentPrice >= 100 ? currentPrice.toFixed(2) : currentPrice >= 1 ? currentPrice.toFixed(4) : currentPrice.toFixed(5)}
-                </div>
+              <div className={`font-mono text-2xl font-black leading-none ${flash === 'up' ? 'tk-up' : flash === 'down' ? 'tk-down' : ''}`}
+                style={{ color: flash ? undefined : (priceStatus === 'connecting' ? 'var(--text-3)' : isUp ? 'var(--green)' : 'var(--red)') }}>
+                {priceStatus === 'connecting' ? '---' : currentPrice.toFixed(dec)}
               </div>
-              <div className={`text-xs font-semibold mt-0.5 flex items-center gap-1 ${priceStatus === 'connecting' ? 'text-white/25' : isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                {priceStatus !== 'connecting' && (isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />)}
-                {priceStatus === 'connecting' ? 'Connecting...' : `${isUp ? '+' : ''}${priceChange.toFixed(3)}%`}
+              <div className="text-xs font-semibold mt-1" style={{ color: isUp ? 'var(--green)' : 'var(--red)' }}>
+                {priceStatus === 'connecting' ? 'Connecting…' : `${isUp ? '▲ +' : '▼ '}${priceChange.toFixed(3)}%`}
               </div>
             </>
           )}
         </div>
 
-        {/* Stats */}
-        <div className="hidden sm:flex items-center gap-6 py-2.5">
-          {[
-            { label: '24h High', value: stats.high.toFixed(currentPrice > 100 ? 2 : 4), cls: 'text-emerald-400/80' },
-            { label: '24h Low', value: stats.low.toFixed(currentPrice > 100 ? 2 : 4), cls: 'text-red-400/80' },
-            { label: 'Spread', value: spread.toString(), cls: 'text-white/50' },
-            { label: 'Leverage', value: `${leverage}x`, cls: 'text-blue-400' },
-            { label: 'Open P&L', value: `${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`, cls: metrics.pnl >= 0 ? 'text-emerald-400' : 'text-red-400' },
-          ].map(s => (
-            <div key={s.label}>
-              <div className="text-[10px] text-white/20 uppercase tracking-wider">{s.label}</div>
-              <div className={`font-mono text-xs font-semibold ${s.cls}`}>{s.value}</div>
-            </div>
-          ))}
+        <div className="hidden md:flex items-center gap-5 flex-shrink-0">
+          <StatChip label="24h High" value={stats.high.toFixed(dec)} color="var(--green)" />
+          <StatChip label="24h Low" value={stats.low.toFixed(dec)} color="var(--red)" />
+          <StatChip label="Spread" value={spread.toString()} color="var(--text-2)" />
+          <StatChip label="Open P&L" value={`${metrics.pnl >= 0 ? '+' : ''}$${formatCurrency(metrics.pnl)}`} color={metrics.pnl >= 0 ? 'var(--green)' : 'var(--red)'} />
         </div>
 
-        {/* Status badge */}
-        <div className="ml-auto flex items-center gap-1.5 py-2.5">
-          <Activity size={11} className={priceStatus === 'live' ? 'text-emerald-400' : priceStatus === 'connecting' ? 'text-yellow-400' : 'text-white/30'} />
-          <span className={`text-[11px] font-semibold ${priceStatus === 'live' ? 'text-emerald-400' : priceStatus === 'connecting' ? 'text-yellow-400' : 'text-white/30'}`}>
-            {priceStatus === 'live' ? 'LIVE' : priceStatus === 'connecting' ? 'CONNECTING' : 'UNAVAILABLE'}
-          </span>
+        <div className="hidden lg:block flex-shrink-0" style={{ width: 160 }}>
+          <RangeBar low={stats.low} high={stats.high} price={currentPrice} decimals={dec} />
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+          <Pill color={sentiment.color} bg={sentiment.bg}>
+            {sentiment.dir === 'up' ? '▲' : sentiment.dir === 'down' ? '▼' : '◆'} {sentiment.label}
+          </Pill>
+          <Pill color={volatility.color}>⚡ {volatility.label}</Pill>
+          <Pill color={priceStatus === 'live' ? 'var(--green)' : 'var(--warn)'} bg={priceStatus === 'live' ? 'var(--green-bg)' : 'var(--warn-bg)'}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: priceStatus === 'live' ? 'var(--green)' : 'var(--warn)', animation: 'pulse 2s infinite' }} />
+            {priceStatus === 'live' ? 'LIVE' : priceStatus === 'connecting' ? 'SYNC' : 'N/A'}
+          </Pill>
         </div>
       </div>
 
-      {/* ── Main Content ── */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
+      {/* ── Main ── */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
 
         {/* Market Watch */}
-        <MarketWatch prices={prices} priceStatuses={priceStatuses} selected={selectedAsset} onSelect={setSelectedAsset} />
+        <div className="hidden lg:flex">
+          <MarketWatch prices={prices} priceStatuses={priceStatuses} histRef={histRef}
+            selected={selectedAsset} onSelect={setSelectedAsset} favs={favs} onFav={toggleFav} />
+        </div>
 
-        {/* Chart + Positions */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Chart */}
-          <div className="flex-1 min-h-0">
+        {/* Chart + positions */}
+        <div className="flex flex-col min-w-0 lg:flex-1">
+          <div className="h-[320px] lg:h-auto lg:flex-1 lg:min-h-0">
             <TradingViewWidget symbol={selectedAsset.symbol} interval="60" />
           </div>
 
-          {/* Positions */}
-          <div className="flex-shrink-0" style={{ height: 200, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex items-center border-b border-white/5">
+          <div className="flex-shrink-0" style={{ height: 220, borderTop: '1px solid var(--border-0)' }}>
+            <div className="flex items-center" style={{ borderBottom: '1px solid var(--border-0)' }}>
               {['positions', 'history'].map(tab => (
-                <button key={tab} onClick={() => setBottomTab(tab)}
-                  className="nav-tab"
-                  style={{ color: bottomTab === tab ? '#3B82F6' : 'rgba(255,255,255,0.35)', borderBottomColor: bottomTab === tab ? '#3B82F6' : 'transparent' }}>
-                  {tab === 'positions' ? `Open Positions (${myPositions.length})` : 'History'}
+                <button key={tab} onClick={() => setBottomTab(tab)} className="nav-tab"
+                  style={{ color: bottomTab === tab ? 'var(--brand-light)' : 'var(--text-3)', borderBottomColor: bottomTab === tab ? 'var(--brand)' : 'transparent' }}>
+                  {tab === 'positions' ? `Positions (${myPositions.length})` : 'History'}
                 </button>
               ))}
-
-              {/* Metrics inline */}
-              <div className="ml-auto flex items-center gap-4 px-4 text-xs">
+              <div className="ml-auto hidden lg:flex items-center gap-4 px-4 text-xs">
                 {[
-                  { l: 'Balance', v: `$${formatCurrency(metrics.balance)}`, c: 'text-white/50' },
-                  { l: 'Equity', v: `$${formatCurrency(metrics.equity)}`, c: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                  { l: 'Margin', v: `$${formatCurrency(metrics.usedMargin)}`, c: 'text-blue-400/70' },
-                  { l: 'Free Margin', v: `$${formatCurrency(metrics.freeMargin)}`, c: 'text-white/50' },
+                  { l: 'Balance', v: `$${formatCurrency(metrics.balance)}`, c: 'var(--text-2)' },
+                  { l: 'Equity', v: `$${formatCurrency(metrics.equity)}`, c: metrics.equity >= metrics.balance ? 'var(--green)' : 'var(--red)' },
+                  { l: 'Free Margin', v: `$${formatCurrency(metrics.freeMargin)}`, c: 'var(--text-2)' },
                 ].map(s => (
-                  <div key={s.l} className="hidden lg:flex items-center gap-1.5">
-                    <span className="text-white/20">{s.l}:</span>
-                    <span className={`font-mono font-semibold ${s.c}`}>{s.v}</span>
+                  <div key={s.l} className="flex items-center gap-1.5">
+                    <span style={{ color: 'var(--text-4)' }}>{s.l}</span>
+                    <span className="font-mono font-semibold" style={{ color: s.c }}>{s.v}</span>
                   </div>
                 ))}
               </div>
             </div>
-
             <div className="overflow-auto" style={{ height: 'calc(100% - 38px)' }}>
               {bottomTab === 'positions' ? (
                 myPositions.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-white/20 text-sm">
-                    No open Forex & Commodities positions
+                  <div className="flex flex-col items-center justify-center h-full gap-1">
+                    <div className="text-3xl mb-1" style={{ opacity: 0.16 }}>📈</div>
+                    <div className="text-sm" style={{ color: 'var(--text-3)' }}>No open positions</div>
                   </div>
                 ) : (
                   <table className="w-full">
-                    <thead className="sticky top-0" style={{ background: '#0d1117' }}>
-                      <tr className="text-[10px] uppercase tracking-wider text-white/25 border-b border-white/5">
-                        {['Symbol', 'Direction', 'Leverage', 'Volume', 'Entry', 'Current', 'P&L', ''].map(h => (
+                    <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-base)' }}>
+                      <tr className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-3)', borderBottom: '1px solid var(--border-0)' }}>
+                        {['Symbol', 'Side', 'Lev', 'Volume', 'Entry', 'Current', 'P&L', ''].map(h => (
                           <th key={h} className="px-3 py-2 text-left font-semibold">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {myPositions.map(pos => (
-                        <PositionRow key={pos.id} pos={pos} prices={prices} onClose={closePosition} />
-                      ))}
+                      {myPositions.map(pos => <PositionRow key={pos.id} pos={pos} prices={prices} onClose={closePosition} />)}
                     </tbody>
                   </table>
                 )
               ) : (
-                <div className="flex items-center justify-center h-full text-white/20 text-sm">
+                <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--text-3)' }}>
                   Closed trades appear in Trade History
                 </div>
               )}
@@ -315,63 +368,70 @@ export default function ForexCommodities() {
           </div>
         </div>
 
-        {/* ─── Trade Panel ────────────────────────────────── */}
-        <div className="flex-shrink-0 flex flex-col overflow-y-auto border-l border-white/5"
-          style={{ width: 300, background: '#0e1218' }}>
-          <div className="p-5 flex flex-col gap-5">
+        {/* Trade panel */}
+        <div className="flex-shrink-0 w-full lg:w-[316px] overflow-y-auto tk-no-scrollbar"
+          style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-0)', borderLeft: '1px solid var(--border-0)' }}>
+          <div className="p-4 flex flex-col gap-4">
 
-            {/* ① Buy / Sell */}
+            {/* Buy / Sell */}
             <div>
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => setDirection('buy')}
-                  className="py-4 rounded-xl transition-all duration-200 flex flex-col items-center gap-1"
+                  className="py-3.5 rounded-xl transition-all duration-200 flex flex-col items-center gap-0.5"
                   style={{
-                    background: direction === 'buy'
-                      ? 'linear-gradient(160deg, #065f46, #1ea774)'
-                      : 'rgba(16,185,129,0.06)',
-                    color: direction === 'buy' ? '#fff' : '#1ea774',
-                    border: `1px solid ${direction === 'buy' ? '#1ea774' : 'rgba(16,185,129,0.2)'}`,
-                    boxShadow: direction === 'buy' ? '0 4px 20px rgba(16,185,129,0.3)' : 'none',
-                    transform: direction === 'buy' ? 'translateY(-1px)' : 'none',
+                    background: direction === 'buy' ? 'linear-gradient(150deg, #054a2e, #1ea774)' : 'rgba(30,167,116,0.07)',
+                    color: direction === 'buy' ? '#fff' : 'var(--green)',
+                    border: `1px solid ${direction === 'buy' ? 'var(--green)' : 'rgba(30,167,116,0.25)'}`,
+                    animation: direction === 'buy' ? 'tk-buy-glow 3s ease-in-out infinite' : 'none',
                   }}>
-                  <span className="text-lg font-bold leading-none">▲</span>
+                  <span className="text-base font-bold leading-none">▲</span>
                   <span className="text-sm font-bold">BUY</span>
-                  <span className="font-mono text-[11px] opacity-70">
-                    {askPrice >= 100 ? askPrice.toFixed(2) : askPrice.toFixed(4)}
-                  </span>
+                  <span className="font-mono text-xs opacity-75">{askPrice.toFixed(dec)}</span>
                 </button>
-
                 <button onClick={() => setDirection('sell')}
-                  className="py-4 rounded-xl transition-all duration-200 flex flex-col items-center gap-1"
+                  className="py-3.5 rounded-xl transition-all duration-200 flex flex-col items-center gap-0.5"
                   style={{
-                    background: direction === 'sell'
-                      ? 'linear-gradient(160deg, #7f1d1d, #d44333)'
-                      : 'rgba(239,68,68,0.06)',
-                    color: direction === 'sell' ? '#fff' : '#d44333',
-                    border: `1px solid ${direction === 'sell' ? '#d44333' : 'rgba(239,68,68,0.2)'}`,
-                    boxShadow: direction === 'sell' ? '0 4px 20px rgba(239,68,68,0.3)' : 'none',
-                    transform: direction === 'sell' ? 'translateY(-1px)' : 'none',
+                    background: direction === 'sell' ? 'linear-gradient(150deg, #7f1d1d, #d44333)' : 'rgba(212,67,51,0.07)',
+                    color: direction === 'sell' ? '#fff' : 'var(--red)',
+                    border: `1px solid ${direction === 'sell' ? 'var(--red)' : 'rgba(212,67,51,0.25)'}`,
+                    animation: direction === 'sell' ? 'tk-sell-glow 3s ease-in-out infinite' : 'none',
                   }}>
-                  <span className="text-lg font-bold leading-none">▼</span>
+                  <span className="text-base font-bold leading-none">▼</span>
                   <span className="text-sm font-bold">SELL</span>
-                  <span className="font-mono text-[11px] opacity-70">
-                    {bidPrice >= 100 ? bidPrice.toFixed(2) : bidPrice.toFixed(4)}
-                  </span>
+                  <span className="font-mono text-xs opacity-75">{bidPrice.toFixed(dec)}</span>
                 </button>
               </div>
-
-              {/* Spread indicator */}
               <div className="mt-2.5 flex items-center justify-center gap-2 py-1.5 rounded-lg"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="text-[10px] text-white/25">Spread:</span>
-                <span className="font-mono text-[11px] text-white/45 font-semibold">{(spread * 2).toFixed(currentPrice > 100 ? 2 : 4)}</span>
-                <span className="w-px h-3 bg-white/10" />
-                <span className="text-[10px] text-white/25">Pip:</span>
-                <span className="font-mono text-[11px] text-white/45 font-semibold">{currentPrice > 100 ? '0.01' : '0.0001'}</span>
+                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+                <span className="text-xs" style={{ color: 'var(--text-4)' }}>Spread</span>
+                <span className="font-mono text-xs font-semibold" style={{ color: 'var(--text-2)' }}>{(spread * 2).toFixed(dec)}</span>
+                <span className="w-px h-3" style={{ background: 'var(--border-1)' }} />
+                <span className="text-xs" style={{ color: 'var(--text-4)' }}>Pip</span>
+                <span className="font-mono text-xs font-semibold" style={{ color: 'var(--text-2)' }}>{currentPrice > 100 ? '0.01' : '0.0001'}</span>
               </div>
             </div>
 
-            {/* ② Leverage */}
+            {/* Buyers vs Sellers strength meter */}
+            <div className="rounded-xl p-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-0)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Gauge size={12} style={{ color: 'var(--brand-light)' }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Strength</span>
+                </div>
+                <span className="text-xs font-bold" style={{ color: buyers >= 50 ? 'var(--green)' : 'var(--red)' }}>
+                  {buyers >= 50 ? 'Buyers' : 'Sellers'} lead
+                </span>
+              </div>
+              <div className="flex h-2 rounded-full overflow-hidden" style={{ background: 'var(--red)' }}>
+                <div className="transition-all duration-700" style={{ width: `${buyers}%`, background: 'var(--green)' }} />
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-xs font-mono" style={{ color: 'var(--green)' }}>{buyers.toFixed(0)}%</span>
+                <span className="text-xs font-mono" style={{ color: 'var(--red)' }}>{(100 - buyers).toFixed(0)}%</span>
+              </div>
+            </div>
+
+            {/* Leverage */}
             <div>
               <SectionLabel right={`${leverage}x`}>Leverage</SectionLabel>
               <div className="grid grid-cols-4 gap-2">
@@ -379,10 +439,10 @@ export default function ForexCommodities() {
                   <button key={l} onClick={() => setLeverage(l)}
                     className="py-2.5 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: leverage === l ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
-                      color: leverage === l ? '#3B82F6' : 'rgba(255,255,255,0.4)',
-                      border: `1px solid ${leverage === l ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                      boxShadow: leverage === l ? '0 0 10px rgba(59,130,246,0.1)' : 'none',
+                      background: leverage === l ? 'linear-gradient(135deg, var(--brand-bg), rgba(124,58,237,0.1))' : 'var(--bg-surface)',
+                      color: leverage === l ? 'var(--brand-light)' : 'var(--text-3)',
+                      border: `1px solid ${leverage === l ? 'rgba(59,130,246,0.4)' : 'var(--border-0)'}`,
+                      boxShadow: leverage === l ? '0 0 12px rgba(59,130,246,0.16)' : 'none',
                     }}>
                     {l}x
                   </button>
@@ -390,126 +450,134 @@ export default function ForexCommodities() {
               </div>
             </div>
 
-            {/* ③ Volume */}
+            {/* Volume */}
             <div>
-              <SectionLabel>Volume (Lots)</SectionLabel>
-              <input
-                type="number"
-                value={volume}
-                onChange={e => { setVolume(e.target.value); setError(''); }}
-                placeholder="0.1"
-                step="0.01"
-                className="input-dark font-mono text-sm py-3 mb-2"
-              />
+              <SectionLabel right={parseFloat(volume) > 0 ? `$${formatCurrency(parseFloat(volume) * currentPrice * leverage)}` : null}>Volume (Lots)</SectionLabel>
+              <input type="number" value={volume} onChange={e => { setVolume(e.target.value); setError(''); }}
+                placeholder="0.1" step="0.01" className="input-dark font-mono text-sm py-3 mb-2" />
               <div className="grid grid-cols-4 gap-1.5">
                 {[0.01, 0.1, 0.5, 1].map(v => (
                   <button key={v} onClick={() => setVolume(v.toString())}
                     className="py-2 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      background: volume === v.toString() ? 'rgba(59,130,246,0.08)' : 'rgba(255,255,255,0.04)',
-                      color: volume === v.toString() ? '#3B82F6' : 'rgba(255,255,255,0.4)',
-                      border: `1px solid ${volume === v.toString() ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                      background: volume === v.toString() ? 'var(--brand-bg)' : 'var(--bg-surface)',
+                      color: volume === v.toString() ? 'var(--brand)' : 'var(--text-3)',
+                      border: `1px solid ${volume === v.toString() ? 'rgba(59,130,246,0.3)' : 'var(--border-0)'}`,
                     }}>
                     {v}
                   </button>
                 ))}
               </div>
+            </div>
 
-              {/* Notional value */}
-              {parseFloat(volume) > 0 && (
-                <div className="mt-2.5 p-2.5 rounded-lg flex items-center justify-between"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span className="text-[11px] text-white/30">Notional Value</span>
-                  <span className="font-mono text-[11px] font-semibold text-white/55">
-                    ${formatCurrency(parseFloat(volume) * currentPrice * leverage)}
-                  </span>
+            {/* AI insight */}
+            <div className="rounded-xl p-3"
+              style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(124,58,237,0.05))', border: '1px solid rgba(59,130,246,0.18)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Brain size={13} style={{ color: 'var(--brand-light)' }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--brand-light)' }}>AI Insight</span>
+                </div>
+                <span className="font-mono text-xs font-bold"
+                  style={{ color: insight.tone === 'good' ? 'var(--green)' : insight.tone === 'bad' ? 'var(--red)' : 'var(--warn)' }}>
+                  {insight.confidence}%
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed mb-1" style={{ color: 'var(--text-2)' }}>{insight.headline}</p>
+              <p className="text-xs leading-relaxed mb-2" style={{ color: 'var(--text-3)' }}>{insight.body}</p>
+              <MeterBar value={insight.confidence}
+                color={insight.tone === 'good' ? 'linear-gradient(90deg,var(--green),#6ee7b7)' : insight.tone === 'bad' ? 'linear-gradient(90deg,var(--red),#fca5a5)' : 'linear-gradient(90deg,var(--brand),var(--brand-light))'} />
+            </div>
+
+            {/* TP / SL */}
+            <div>
+              <button onClick={() => setShowTpSl(v => !v)}
+                className="w-full flex items-center justify-between py-1 text-xs font-semibold uppercase tracking-wider transition-colors"
+                style={{ color: showTpSl ? 'var(--brand)' : 'var(--text-3)' }}>
+                <span>Take Profit / Stop Loss</span>
+                <ChevronDown size={13} style={{ transform: showTpSl ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </button>
+              {showTpSl && (
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(30,167,116,0.75)' }}>Take Profit</label>
+                    <input type="number" value={takeProfit} onChange={e => setTakeProfit(e.target.value)}
+                      placeholder="Optional" step="0.0001" className="input-dark font-mono text-sm py-2.5"
+                      style={{ borderColor: takeProfit ? 'rgba(30,167,116,0.35)' : undefined }} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1.5 block" style={{ color: 'rgba(212,67,51,0.75)' }}>Stop Loss</label>
+                    <input type="number" value={stopLoss} onChange={e => setStopLoss(e.target.value)}
+                      placeholder="Optional" step="0.0001" className="input-dark font-mono text-sm py-2.5"
+                      style={{ borderColor: stopLoss ? 'rgba(212,67,51,0.35)' : undefined }} />
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* ④ TP / SL */}
-            <div>
-              <SectionLabel>Take Profit / Stop Loss</SectionLabel>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] text-emerald-400/60 font-semibold mb-1.5 block">
-                    Take Profit
-                  </label>
-                  <input
-                    type="number"
-                    value={takeProfit}
-                    onChange={e => setTakeProfit(e.target.value)}
-                    placeholder="Optional"
-                    step="0.0001"
-                    className="input-dark font-mono text-sm py-2.5"
-                    style={{ borderColor: takeProfit ? 'rgba(16,185,129,0.3)' : '' }}
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] text-red-400/60 font-semibold mb-1.5 block">
-                    Stop Loss
-                  </label>
-                  <input
-                    type="number"
-                    value={stopLoss}
-                    onChange={e => setStopLoss(e.target.value)}
-                    placeholder="Optional"
-                    step="0.0001"
-                    className="input-dark font-mono text-sm py-2.5"
-                    style={{ borderColor: stopLoss ? 'rgba(239,68,68,0.3)' : '' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* ⑤ Messages */}
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl"
-                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                <AlertCircle size={13} className="text-red-400 flex-shrink-0" />
-                <span className="text-red-400 text-xs">{error}</span>
+              <div className="flex items-center gap-2 p-3 rounded-xl" style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.2)' }}>
+                <AlertCircle size={13} style={{ color: 'var(--red)', flexShrink: 0 }} />
+                <span className="text-xs" style={{ color: 'var(--red)' }}>{error}</span>
               </div>
             )}
             {success && (
-              <div className="p-3 rounded-xl text-xs text-emerald-400"
-                style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <div className="p-3 rounded-xl text-xs tk-fade-up" style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.2)', color: 'var(--green)' }}>
                 {success}
               </div>
             )}
 
-            {/* ⑥ Place Order Button */}
+            {/* Submit */}
             <button onClick={handleTrade}
-              className="w-full py-4 rounded-xl font-bold text-base transition-all duration-200"
+              className="w-full py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-2 transition-all duration-200"
               style={{
                 background: direction === 'buy'
-                  ? 'linear-gradient(135deg, #065f46 0%, #1ea774 50%, #065f46 100%)'
-                  : 'linear-gradient(135deg, #7f1d1d 0%, #d44333 50%, #7f1d1d 100%)',
-                backgroundSize: '200% 100%',
-                boxShadow: direction === 'buy'
-                  ? '0 4px 24px rgba(16,185,129,0.35)'
-                  : '0 4px 24px rgba(239,68,68,0.35)',
+                  ? 'linear-gradient(135deg, #054a2e, #059669 55%, #1ea774)'
+                  : 'linear-gradient(135deg, #7f1d1d, #dc2626 55%, #d44333)',
+                color: '#fff',
+                boxShadow: direction === 'buy' ? '0 4px 24px rgba(30,167,116,0.38)' : '0 4px 24px rgba(212,67,51,0.38)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.backgroundPosition = 'right'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundPosition = 'left'; e.currentTarget.style.transform = 'none'; }}
-            >
-              {direction === 'buy' ? '▲ Place Buy Order' : '▼ Place Sell Order'}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+              <Zap size={15} />
+              {direction === 'buy' ? '▲ PLACE BUY ORDER' : '▼ PLACE SELL ORDER'}
             </button>
 
-            {/* ⑦ Account Metrics */}
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="px-4 py-2.5 border-b border-white/5" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/25">Account</span>
+            {/* Economic calendar */}
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-0)' }}>
+              <div className="px-4 py-2.5 flex items-center gap-1.5" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-0)' }}>
+                <Calendar size={11} style={{ color: 'var(--text-3)' }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Economic Calendar</span>
+              </div>
+              <div>
+                {ECON_EVENTS.map((ev, i) => (
+                  <div key={i} className="flex items-center gap-2.5 px-4 py-2"
+                    style={{ borderTop: i ? '1px solid var(--border-0)' : 'none' }}>
+                    <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: IMPACT_COLOR[ev.impact] }} />
+                    <span className="font-mono text-xs flex-shrink-0" style={{ color: 'var(--text-3)' }}>{ev.time}</span>
+                    <span className="text-xs font-bold flex-shrink-0" style={{ color: 'var(--brand-light)' }}>{ev.cur}</span>
+                    <span className="text-xs truncate" style={{ color: 'var(--text-2)' }}>{ev.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Account */}
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-0)' }}>
+              <div className="px-4 py-2.5 flex items-center gap-1.5" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-0)' }}>
+                <Activity size={11} style={{ color: 'var(--text-3)' }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Account</span>
               </div>
               <div className="px-4 py-3 space-y-2.5">
                 {[
-                  { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'text-white/65' },
-                  { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: metrics.equity >= metrics.balance ? 'text-emerald-400' : 'text-red-400' },
-                  { label: 'Free Margin', value: `$${formatCurrency(metrics.freeMargin)}`, color: 'text-white/65' },
-                  { label: 'Margin Level', value: `${metrics.marginLevel.toFixed(1)}%`, color: metrics.marginLevel > 200 ? 'text-emerald-400' : 'text-yellow-400' },
+                  { label: 'Balance', value: `$${formatCurrency(metrics.balance)}`, color: 'var(--text-2)' },
+                  { label: 'Equity', value: `$${formatCurrency(metrics.equity)}`, color: metrics.equity >= metrics.balance ? 'var(--green)' : 'var(--red)' },
+                  { label: 'Free Margin', value: `$${formatCurrency(metrics.freeMargin)}`, color: 'var(--text-2)' },
+                  { label: 'Margin Level', value: metrics.marginLevel > 900 ? '∞' : `${metrics.marginLevel.toFixed(1)}%`, color: metrics.marginLevel > 200 ? 'var(--green)' : 'var(--warn)' },
                 ].map(item => (
                   <div key={item.label} className="flex items-center justify-between">
-                    <span className="text-[11px] text-white/30">{item.label}</span>
-                    <span className={`font-mono text-[11px] font-semibold ${item.color}`}>{item.value}</span>
+                    <span className="text-xs" style={{ color: 'var(--text-3)' }}>{item.label}</span>
+                    <span className="font-mono text-xs font-semibold" style={{ color: item.color }}>{item.value}</span>
                   </div>
                 ))}
               </div>
