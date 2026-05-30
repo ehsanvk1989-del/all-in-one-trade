@@ -254,6 +254,11 @@ export default function LoginPage() {
           <div className="text-center mt-4 text-white/20 text-xs">
             Demo Platform — No real funds involved
           </div>
+          <div className="text-center mt-2">
+            <a href="#admin" className="text-xs transition-colors hover:text-white/40" style={{ color: 'rgba(255,255,255,0.18)' }}>
+              Admin Console →
+            </a>
+          </div>
         </div>
       </div>
     </div>

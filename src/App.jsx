@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { NotificationProvider } from './context/NotificationContext';
 import LandingPage from './pages/LandingPage';
@@ -17,6 +17,7 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import ToastContainer from './components/common/ToastContainer';
 import AIAssistant from './components/common/AIAssistant';
+import AdminApp from './admin/AdminApp';
 
 function AppContent() {
   const { user, currentPage } = useApp();
@@ -68,8 +69,20 @@ function AppContent() {
 }
 
 function App() {
+  // Admin console lives at the #admin hash — fully separate from the trader app
+  const [isAdmin, setIsAdmin] = useState(() => window.location.hash.startsWith('#admin'));
+  useEffect(() => {
+    const handler = () => setIsAdmin(window.location.hash.startsWith('#admin'));
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+
   // Show landing if user has never entered the app this session
   const [showLanding, setShowLanding] = useState(() => !localStorage.getItem('pt_user'));
+
+  if (isAdmin) {
+    return <AdminApp />;
+  }
 
   if (showLanding) {
     return <LandingPage onEnter={() => setShowLanding(false)} />;
