@@ -33,22 +33,23 @@ function MarketCard({ asset, price, status, change, history, selected, hot, fav,
   return (
     <button
       onClick={() => onSelect(asset)}
-      className="relative flex-shrink-0 rounded-xl p-3 text-left transition-all duration-200 tk-fade-up"
+      className="relative flex-shrink-0 rounded-lg px-2.5 py-2 text-left transition-all duration-200 tk-fade-up"
       style={{
-        minWidth: 158,
+        minWidth: 120,
+        flex: '1 1 0',
         background: selected
           ? 'linear-gradient(135deg, rgba(59,130,246,0.13), rgba(124,58,237,0.07))'
           : 'var(--bg-card)',
         border: `1px solid ${selected ? 'rgba(59,130,246,0.4)' : 'var(--border-0)'}`,
         boxShadow: selected ? '0 0 22px rgba(59,130,246,0.14)' : 'none',
       }}>
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-base leading-none">{asset.icon}</span>
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-1">
+          <span className="text-sm leading-none">{asset.icon}</span>
           <span className="text-xs font-bold" style={{ color: 'var(--text-1)' }}>{asset.symbol.replace('/USDT', '')}</span>
           {hot && (
             <span className="inline-flex items-center" title="Hot market">
-              <Flame size={11} style={{ color: 'var(--warn)' }} />
+              <Flame size={10} style={{ color: 'var(--warn)' }} />
             </span>
           )}
         </div>
@@ -56,20 +57,20 @@ function MarketCard({ asset, price, status, change, history, selected, hot, fav,
           onClick={(e) => { e.stopPropagation(); onFav(asset.symbol); }}
           className="cursor-pointer transition-transform hover:scale-125"
         >
-          <Star size={12}
+          <Star size={11}
             style={{ color: fav ? 'var(--warn)' : 'var(--text-4)', fill: fav ? 'var(--warn)' : 'none' }} />
         </span>
       </div>
-      <div className="flex items-end justify-between gap-2">
+      <div className="flex items-end justify-between gap-1.5">
         <div>
-          <div className="font-mono text-xs font-bold" style={{ color: status === 'connecting' ? 'var(--text-4)' : 'var(--text-1)' }}>
+          <div className="font-mono text-xs font-bold leading-tight" style={{ color: status === 'connecting' ? 'var(--text-4)' : 'var(--text-1)' }}>
             {status === 'connecting' ? '—' : status === 'unavailable' ? 'N/A' : (price >= 1000 ? price.toFixed(2) : price.toFixed(4))}
           </div>
-          <div className="text-xs font-bold mt-0.5" style={{ color: isUp ? 'var(--green)' : 'var(--red)' }}>
+          <div className="font-bold mt-0.5" style={{ fontSize: '0.7rem', color: isUp ? 'var(--green)' : 'var(--red)' }}>
             {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
           </div>
         </div>
-        <Sparkline history={history} up={isUp} w={52} h={22} id={asset.symbol} fill={false} />
+        <Sparkline history={history} up={isUp} w={40} h={18} id={asset.symbol} fill={false} />
       </div>
     </button>
   );
@@ -354,7 +355,7 @@ export default function CryptoFutures() {
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--bg-base)' }}>
 
       {/* ── Market strip ── */}
-      <div className="flex gap-2 px-4 py-2.5 overflow-x-auto tk-no-scrollbar flex-shrink-0"
+      <div className="flex gap-1.5 px-3 py-2 overflow-x-auto tk-no-scrollbar flex-shrink-0"
         style={{ borderBottom: '1px solid var(--border-0)' }}>
         {/* Favorites first, then the rest */}
         {[...CRYPTO_FUTURES_ASSETS].sort((a, b) => (favs.has(b.symbol) ? 1 : 0) - (favs.has(a.symbol) ? 1 : 0)).map(asset => {
