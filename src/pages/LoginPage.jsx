@@ -45,11 +45,6 @@ export default function LoginPage() {
     login(email.trim().toLowerCase());
   };
 
-  const fillDemo = () => {
-    setEmail(DEMO_CREDENTIALS.email);
-    setPassword(DEMO_CREDENTIALS.password);
-    setError('');
-  };
 
   return (
     <div className="min-h-screen flex" style={{ background: '#0a0a0a' }}>
@@ -228,22 +223,6 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Demo credentials hint */}
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="w-full mt-4 rounded-xl px-4 py-3 text-left transition-all"
-              style={{ background: 'var(--brand-bg2)', border: '1px solid rgba(99,102,241,0.18)' }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold tracking-wide mb-1" style={{ color: 'var(--brand-light)' }}>DEMO ACCOUNT</div>
-                  <div className="text-xs font-mono" style={{ color: 'var(--text-3)' }}>ehsan@gmail.com · ehsan123</div>
-                </div>
-                <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--brand)' }}>Use →</span>
-              </div>
-            </button>
 
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
