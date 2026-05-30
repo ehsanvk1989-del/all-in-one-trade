@@ -11,6 +11,8 @@ import CryptoFutures from './pages/CryptoFutures';
 import ForexCommodities from './pages/ForexCommodities';
 import OpenPositions from './pages/OpenPositions';
 import TradeHistory from './pages/TradeHistory';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import ToastContainer from './components/common/ToastContainer';
@@ -33,6 +35,8 @@ function AppContent() {
       case 'forex': return <ForexCommodities />;
       case 'positions': return <OpenPositions />;
       case 'history': return <TradeHistory />;
+      case 'profile': return <Profile />;
+      case 'settings': return <Settings />;
       default: return <MainSelectionPage />;
     }
   };

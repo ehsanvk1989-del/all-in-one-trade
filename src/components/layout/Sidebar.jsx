@@ -1,7 +1,8 @@
 import React from 'react';
 import {
   LayoutDashboard, Wallet, TrendingUp, BarChart3, LineChart,
-  History, BookOpen, LogOut, ChevronLeft, ChevronRight, Zap
+  History, BookOpen, LogOut, ChevronLeft, ChevronRight, Zap,
+  User, Settings
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -14,6 +15,9 @@ const NAV_ITEMS = [
   { id: 'simple', label: 'Simple Trade', icon: Zap },
   { id: 'crypto', label: 'Crypto Futures', icon: BarChart3 },
   { id: 'forex', label: 'Forex & Commodities', icon: LineChart },
+  { divider: true },
+  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function Sidebar() {

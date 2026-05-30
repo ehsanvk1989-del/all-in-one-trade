@@ -12,6 +12,8 @@ const PAGE_TITLES = {
   simple: 'Simple Trade',
   crypto: 'Crypto Futures',
   forex: 'Forex & Commodities',
+  profile: 'Profile',
+  settings: 'Settings',
 };
 
 function useNow() {
@@ -35,7 +37,7 @@ function useLatency() {
 }
 
 export default function Header() {
-  const { currentPage, prices, priceStatuses, getMetrics, user, logout } = useApp();
+  const { currentPage, prices, priceStatuses, getMetrics, user, logout, setCurrentPage } = useApp();
   const [metrics, setMetrics] = useState({ balance: 0, equity: 0, pnl: 0 });
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -221,10 +223,11 @@ export default function Header() {
                   </div>
                   <div className="py-1.5">
                     {[
-                      { icon: User, label: 'Profile' },
-                      { icon: Settings, label: 'Settings' },
-                    ].map(({ icon: Icon, label }) => (
+                      { icon: User, label: 'Profile', page: 'profile' },
+                      { icon: Settings, label: 'Settings', page: 'settings' },
+                    ].map(({ icon: Icon, label, page }) => (
                       <button key={label}
+                        onClick={() => { setCurrentPage(page); setProfileOpen(false); }}
                         className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-sm"
                         style={{ color: 'var(--text-2)' }}
                         onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-1)'; }}
