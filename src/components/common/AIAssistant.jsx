@@ -320,7 +320,7 @@ export default function AIAssistant() {
           style={{
             position: 'fixed',
             bottom: 'calc(1.5rem + 56px + 12px)',
-            right: '1.5rem',
+            left: '1.5rem',
             width: 400,
             height: 500,
             zIndex: 50,
@@ -499,7 +499,7 @@ export default function AIAssistant() {
         style={{
           position: 'fixed',
           bottom: '1.5rem',
-          right: '1.5rem',
+          left: '1.5rem',
           zIndex: 50,
           width: 56,
           height: 56,
