@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users as UsersIcon, Wallet, ArrowDownToLine, ArrowUpFromLine,
   Activity, Layers, BarChart3, FileText, ShieldAlert, Server, ScrollText,
-  Settings as SettingsIcon, LogOut, Bell, Search, ChevronLeft, ChevronRight, ShieldCheck
+  Settings as SettingsIcon, LogOut, Bell, Search, ChevronLeft, ChevronRight, ShieldCheck,
+  Database,
 } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 import {
@@ -10,6 +11,7 @@ import {
   TradesSection, PositionsSection, AnalyticsSection, ReportsSection, RiskSection,
   SystemSection, AuditSection, SettingsSection,
 } from './AdminSections';
+import MarketDataConsole from './MarketDataConsole';
 import { getPlatformStats } from './adminData';
 
 const NAV_GROUPS = [
@@ -41,6 +43,7 @@ const NAV_GROUPS = [
   {
     title: 'System',
     items: [
+      { id: 'market', label: 'Market Data', icon: Database },
       { id: 'system', label: 'System Monitoring', icon: Server },
       { id: 'audit', label: 'Audit Logs', icon: ScrollText },
       { id: 'settings', label: 'Settings', icon: SettingsIcon },
@@ -194,6 +197,7 @@ export default function AdminApp() {
       case 'trades':      return <TradesSection />;
       case 'positions':   return <PositionsSection />;
       case 'risk':        return <RiskSection />;
+      case 'market':      return <MarketDataConsole />;
       case 'system':      return <SystemSection />;
       case 'audit':       return <AuditSection />;
       case 'settings':    return <SettingsSection />;
