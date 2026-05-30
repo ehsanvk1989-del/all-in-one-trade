@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Shield, Zap, Globe, TrendingUp } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Globe, TrendingUp, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const FEATURES = [
@@ -9,9 +9,17 @@ const FEATURES = [
   { icon: TrendingUp, text: 'Advanced analytics' },
 ];
 
+// Demo credentials — replace with real authentication in production
+const DEMO_CREDENTIALS = {
+  email: 'ehsan@gmail.com',
+  password: 'ehsan123',
+};
+
 export default function LoginPage() {
   const { login } = useApp();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,10 +29,26 @@ export default function LoginPage() {
       setError('Please enter a valid email address');
       return;
     }
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
     setLoading(true);
     setError('');
-    await new Promise(r => setTimeout(r, 1200));
-    login(email);
+    await new Promise(r => setTimeout(r, 1000));
+
+    if (email.trim().toLowerCase() !== DEMO_CREDENTIALS.email || password !== DEMO_CREDENTIALS.password) {
+      setLoading(false);
+      setError('Invalid email or password. Please try again.');
+      return;
+    }
+    login(email.trim().toLowerCase());
+  };
+
+  const fillDemo = () => {
+    setEmail(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    setError('');
   };
 
   return (
@@ -129,7 +153,7 @@ export default function LoginPage() {
             {/* Header */}
             <div className="text-center mb-8">
               <div className="text-gradient-brand font-bold text-2xl mb-2">Welcome Back</div>
-              <p className="text-white/40 text-sm">Enter your email to access the platform</p>
+              <p className="text-white/40 text-sm">Sign in to access the platform</p>
             </div>
 
             {/* Form */}
@@ -138,19 +162,52 @@ export default function LoginPage() {
                 <label className="block text-white/60 text-sm font-medium mb-2">
                   Email Address
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="input-dark text-base"
-                  style={{ padding: '0.875rem 1rem', fontSize: '0.9rem' }}
-                  autoFocus
-                />
-                {error && (
-                  <p className="text-red-400 text-xs mt-2">{error}</p>
-                )}
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); setError(''); }}
+                    placeholder="you@example.com"
+                    className="input-dark text-base"
+                    style={{ padding: '0.875rem 1rem 0.875rem 2.6rem', fontSize: '0.9rem' }}
+                    autoFocus
+                  />
+                </div>
               </div>
+
+              <div>
+                <label className="block text-white/60 text-sm font-medium mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); setError(''); }}
+                    placeholder="Enter your password"
+                    className="input-dark text-base"
+                    style={{ padding: '0.875rem 2.6rem', fontSize: '0.9rem' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg"
+                  style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.2)' }}>
+                  <Shield size={13} style={{ color: 'var(--red)', flexShrink: 0 }} />
+                  <p className="text-xs" style={{ color: 'var(--red)' }}>{error}</p>
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -171,6 +228,22 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
+
+            {/* Demo credentials hint */}
+            <button
+              type="button"
+              onClick={fillDemo}
+              className="w-full mt-4 rounded-xl px-4 py-3 text-left transition-all"
+              style={{ background: 'var(--brand-bg2)', border: '1px solid rgba(99,102,241,0.18)' }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold tracking-wide mb-1" style={{ color: 'var(--brand-light)' }}>DEMO ACCOUNT</div>
+                  <div className="text-xs font-mono" style={{ color: 'var(--text-3)' }}>ehsan@gmail.com · ehsan123</div>
+                </div>
+                <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--brand)' }}>Use →</span>
+              </div>
+            </button>
 
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
