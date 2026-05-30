@@ -622,6 +622,34 @@ export default function CryptoFutures() {
                 </div>
               </div>
 
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl" style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.2)' }}>
+                  <AlertCircle size={13} style={{ color: 'var(--red)', flexShrink: 0 }} />
+                  <span className="text-xs" style={{ color: 'var(--red)' }}>{error}</span>
+                </div>
+              )}
+              {success && (
+                <div className="p-3 rounded-xl text-xs tk-fade-up" style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.2)', color: 'var(--green)' }}>
+                  {success}
+                </div>
+              )}
+
+              {/* Submit */}
+              <button onClick={handleTrade}
+                className="w-full py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-2 transition-all duration-200"
+                style={{
+                  background: direction === 'long'
+                    ? 'linear-gradient(135deg, #054a2e, #059669 55%, #1ea774)'
+                    : 'linear-gradient(135deg, #7f1d1d, #dc2626 55%, #d44333)',
+                  color: '#fff',
+                  boxShadow: direction === 'long' ? '0 4px 24px rgba(30,167,116,0.38)' : '0 4px 24px rgba(212,67,51,0.38)',
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                <Zap size={15} />
+                {direction === 'long' ? '▲ OPEN LONG' : '▼ OPEN SHORT'}
+              </button>
+
               {/* Risk summary */}
               <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-0)' }}>
                 <div className="px-3 py-2 flex items-center gap-1.5" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-0)' }}>
@@ -668,34 +696,6 @@ export default function CryptoFutures() {
                   </div>
                 </div>
               </div>
-
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-xl" style={{ background: 'var(--red-bg)', border: '1px solid rgba(212,67,51,0.2)' }}>
-                  <AlertCircle size={13} style={{ color: 'var(--red)', flexShrink: 0 }} />
-                  <span className="text-xs" style={{ color: 'var(--red)' }}>{error}</span>
-                </div>
-              )}
-              {success && (
-                <div className="p-3 rounded-xl text-xs tk-fade-up" style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,167,116,0.2)', color: 'var(--green)' }}>
-                  {success}
-                </div>
-              )}
-
-              {/* Submit */}
-              <button onClick={handleTrade}
-                className="w-full py-4 rounded-xl font-black text-sm tracking-widest flex items-center justify-center gap-2 transition-all duration-200"
-                style={{
-                  background: direction === 'long'
-                    ? 'linear-gradient(135deg, #054a2e, #059669 55%, #1ea774)'
-                    : 'linear-gradient(135deg, #7f1d1d, #dc2626 55%, #d44333)',
-                  color: '#fff',
-                  boxShadow: direction === 'long' ? '0 4px 24px rgba(30,167,116,0.38)' : '0 4px 24px rgba(212,67,51,0.38)',
-                }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
-                <Zap size={15} />
-                {direction === 'long' ? '▲ OPEN LONG' : '▼ OPEN SHORT'}
-              </button>
 
               {/* Account */}
               <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-0)' }}>
