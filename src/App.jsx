@@ -18,6 +18,7 @@ import Header from './components/layout/Header';
 import ToastContainer from './components/common/ToastContainer';
 import AIAssistant from './components/common/AIAssistant';
 import AdminApp from './admin/AdminApp';
+import AffiliateApp from './affiliate/AffiliateApp';
 
 function AppContent() {
   const { user, currentPage } = useApp();
@@ -69,10 +70,14 @@ function AppContent() {
 }
 
 function App() {
-  // Admin console lives at the #admin hash — fully separate from the trader app
-  const [isAdmin, setIsAdmin] = useState(() => window.location.hash.startsWith('#admin'));
+  // Isolated portals — each lives at its own hash, fully separate from the trader app
+  const [isAdmin, setIsAdmin]         = useState(() => window.location.hash.startsWith('#admin'));
+  const [isAffiliate, setIsAffiliate] = useState(() => window.location.hash.startsWith('#affiliate'));
   useEffect(() => {
-    const handler = () => setIsAdmin(window.location.hash.startsWith('#admin'));
+    const handler = () => {
+      setIsAdmin(window.location.hash.startsWith('#admin'));
+      setIsAffiliate(window.location.hash.startsWith('#affiliate'));
+    };
     window.addEventListener('hashchange', handler);
     return () => window.removeEventListener('hashchange', handler);
   }, []);
@@ -82,6 +87,10 @@ function App() {
 
   if (isAdmin) {
     return <AdminApp />;
+  }
+
+  if (isAffiliate) {
+    return <AffiliateApp />;
   }
 
   if (showLanding) {
