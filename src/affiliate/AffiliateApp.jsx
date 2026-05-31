@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users, ArrowDownToLine, DollarSign, BarChart3,
   Wallet, FileText, Link2, Settings, LogOut, Bell, ChevronLeft,
-  ChevronRight, TrendingUp,
+  ChevronRight, TrendingUp, Award,
 } from 'lucide-react';
 import AffiliateLogin from './AffiliateLogin';
 import AffiliateDashboard    from './pages/AffiliateDashboard';
@@ -14,6 +14,7 @@ import AffiliatePayouts      from './pages/AffiliatePayouts';
 import AffiliateReports      from './pages/AffiliateReports';
 import AffiliateReferralTools from './pages/AffiliateReferralTools';
 import AffiliateProfile      from './pages/AffiliateProfile';
+import AffiliateTierPlan     from './pages/AffiliateTierPlan';
 import { AFFILIATE_PROFILE, getAffiliateSummary } from './affiliateMockData';
 
 const NAV_GROUPS = [
@@ -43,6 +44,7 @@ const NAV_GROUPS = [
     title: 'Growth',
     items: [
       { id: 'tools',   label: 'Referral Tools',    icon: Link2 },
+      { id: 'tiers',   label: 'Partner Program',   icon: Award },
     ],
   },
   {
@@ -238,6 +240,7 @@ export default function AffiliateApp() {
       case 'payouts':   return <AffiliatePayouts />;
       case 'reports':   return <AffiliateReports />;
       case 'tools':     return <AffiliateReferralTools />;
+      case 'tiers':     return <AffiliateTierPlan />;
       case 'profile':   return <AffiliateProfile />;
       default:          return <AffiliateDashboard onNavigate={setSection} />;
     }

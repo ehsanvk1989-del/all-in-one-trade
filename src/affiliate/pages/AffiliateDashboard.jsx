@@ -5,6 +5,7 @@ import {
   getAffiliateSummary, getMonthlyDeposits, getWeeklyRebates,
   getClientGrowth, getWeeklyLots, CLIENTS, formatFull, formatMoney,
 } from '../affiliateMockData';
+import { TierProgressCard } from './AffiliateTierPlan';
 
 const S = getAffiliateSummary();
 const monthlyDeps = getMonthlyDeposits();
@@ -45,6 +46,11 @@ export default function AffiliateDashboard({ onNavigate }) {
         <AffStatCard label="Pending Payout"   value={formatMoney(S.pendingPayout)}    icon={Clock}    accent="#F59E0B" onClick={() => onNavigate('payouts')} />
         <AffStatCard label="Paid Commissions" value={formatMoney(S.paidCommissions)}  icon={Wallet}   accent="#10B981" sub="lifetime" onClick={() => onNavigate('payouts')} />
         <AffStatCard label="Active Clients"   value={S.activeClients}                 icon={Activity} accent="#10B981" sub={`of ${S.totalClients} total`} />
+      </div>
+
+      {/* Tier progress */}
+      <div className="mb-6">
+        <TierProgressCard onViewDetails={() => onNavigate('tiers')} />
       </div>
 
       {/* Charts row */}
