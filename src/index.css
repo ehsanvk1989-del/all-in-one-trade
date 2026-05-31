@@ -291,6 +291,62 @@
   color: var(--text-1);
 }
 
+/* ─── Affiliate Portal Light Mode ────────────────────────────────────────── */
+/*
+  Scoped to [data-affiliate-theme="light"] so neither the trader app
+  nor the Admin Panel is affected.
+*/
+[data-affiliate-theme="light"] {
+  --bg-deep:    #e8ecf2;
+  --bg-base:    #f2f5fa;
+  --bg-surface: #ffffff;
+  --bg-card:    #ffffff;
+  --bg-hover:   #ecfdf5;
+  --border-0:   rgba(15,23,42,0.07);
+  --border-1:   rgba(15,23,42,0.11);
+  --border-2:   rgba(15,23,42,0.17);
+  --brand-bg:    rgba(16,185,129,0.09);
+  --brand-bg2:   rgba(16,185,129,0.05);
+  --brand-glow:  rgba(16,185,129,0.18);
+  --text-1:     #0f172a;
+  --text-2:     rgba(15,23,42,0.68);
+  --text-3:     rgba(15,23,42,0.44);
+  --text-4:     rgba(15,23,42,0.27);
+  --green:      #059669;
+  --green-bg:   rgba(5,150,105,0.10);
+  --red:        #dc2626;
+  --red-bg:     rgba(220,38,38,0.10);
+  --warn:       #d97706;
+  --warn-bg:    rgba(217,119,6,0.10);
+}
+
+[data-affiliate-theme="light"] ::-webkit-scrollbar-track { background: #e8ecf2; }
+[data-affiliate-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.14); }
+[data-affiliate-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.26); }
+
+[data-affiliate-theme="light"] .input-dark {
+  background: #f2f5fa;
+  border-color: rgba(15,23,42,0.12);
+  color: var(--text-1);
+}
+[data-affiliate-theme="light"] .input-dark::placeholder { color: var(--text-3); }
+[data-affiliate-theme="light"] .input-dark:focus {
+  background: #ffffff;
+  border-color: rgba(16,185,129,0.45);
+}
+
+[data-affiliate-theme="light"] .card-premium {
+  box-shadow: 0 1px 6px rgba(15,23,42,0.06), 0 2px 12px rgba(15,23,42,0.04);
+}
+[data-affiliate-theme="light"] .card-premium:hover {
+  box-shadow: 0 4px 20px rgba(16,185,129,0.12), 0 2px 8px rgba(15,23,42,0.06);
+}
+
+[data-affiliate-theme="light"] .sidebar-item:hover {
+  background: rgba(16,185,129,0.06);
+  color: var(--text-1);
+}
+
 /* ─── Keyframes ────────────────────────────────────────────────────────────── */
 @keyframes ticker {
   0%   { transform: translateX(0); }
