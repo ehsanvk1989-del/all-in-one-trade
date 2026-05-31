@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users as UsersIcon, Wallet, ArrowDownToLine, ArrowUpFromLine,
   Activity, Layers, BarChart3, FileText, ShieldAlert, Server, ScrollText,
   Settings as SettingsIcon, LogOut, Bell, Search, ChevronLeft, ChevronRight, ShieldCheck,
-  Database,
+  Database, Award,
 } from 'lucide-react';
 import AdminLogin from './AdminLogin';
 import {
@@ -12,6 +12,7 @@ import {
   SystemSection, AuditSection, SettingsSection,
 } from './AdminSections';
 import MarketDataConsole from './MarketDataConsole';
+import AffiliateManagement from './AffiliateManagement';
 import { getPlatformStats } from './adminData';
 
 const NAV_GROUPS = [
@@ -38,6 +39,12 @@ const NAV_GROUPS = [
       { id: 'trades', label: 'Trades', icon: Activity },
       { id: 'positions', label: 'Positions', icon: Layers },
       { id: 'risk', label: 'Risk Monitoring', icon: ShieldAlert },
+    ],
+  },
+  {
+    title: 'Partners',
+    items: [
+      { id: 'affiliates', label: 'Affiliate Management', icon: Award },
     ],
   },
   {
@@ -197,6 +204,7 @@ export default function AdminApp() {
       case 'trades':      return <TradesSection />;
       case 'positions':   return <PositionsSection />;
       case 'risk':        return <RiskSection />;
+      case 'affiliates':  return <AffiliateManagement />;
       case 'market':      return <MarketDataConsole />;
       case 'system':      return <SystemSection />;
       case 'audit':       return <AuditSection />;
